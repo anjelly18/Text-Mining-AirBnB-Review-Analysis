@@ -1,3 +1,38 @@
+# =============================================================
+# LARGE FILES — stored on Google Drive, not committed to GitHub
+# See README.md for the Drive link
+# =============================================================
+
+# Large model files — download from Google Drive, place in Actual Work/models/
+# Small model files (tfidf_vectorizer, bow_vectorizer, word2vec.model) ARE committed
+Actual Work/models/lr_sentiment_task1.pkl
+Actual Work/models/lr_aspect.pkl
+Actual Work/models/lr_sentiment_task3.pkl
+Actual Work/models/tfidf_vectorizer_task1.pkl
+Actual Work/models/tfidf_vectorizer_task3.pkl
+Actual Work/models/le_aspect.pkl
+Actual Work/models/le_sentiment.pkl
+
+# Large feature matrices (training artefacts — not needed for inference)
+Actual Work/features/bow_matrix.pkl
+Actual Work/features/tfidf_matrix.pkl
+Actual Work/features/w2v_embeddings.pkl
+
+# Raw and intermediate data files
+Actual Work/data/raw_reviews.csv
+Actual Work/data/MergedCleaned.csv
+Actual Work/data/labelled_reviews.csv
+
+# Large task output CSVs
+Actual Work/task2-topics/lda_topic_assignments.csv
+Actual Work/task3-combination/task3_supervised_output.csv
+Actual Work/task3-combination/sentence_aspect_polarity.csv
+Actual Work/task3-combination/suggestions_by_aspect.csv
+
+# =============================================================
+# STANDARD PYTHON IGNORES
+# =============================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

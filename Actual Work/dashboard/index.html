@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airbnb Review Analyser — Bangkok</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --c-bg: #faf9f6;
+      --c-surface: #fff;
+      --c-border: #e8e4dd;
+      --c-text: #1a1916;
+      --c-muted: #6b6861;
+      --c-accent: #c17f4a;
+      --c-pos-bg: #eaf3de;
+      --c-pos-text: #3b6d11;
+      --c-neg-bg: #fcebeb;
+      --c-neg-text: #a32d2d;
+      --c-neu-bg: #f1efe8;
+      --c-neu-text: #444441;
+      --c-score-hi: #3b6d11;
+      --c-score-lo: #a32d2d;
+      --c-score-mid: #854f0b;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --c-bg: #1a1916;
+        --c-surface: #242220;
+        --c-border: #3a3834;
+        --c-text: #f0ede6;
+        --c-muted: #9a9690;
+        --c-accent: #d4965f;
+        --c-pos-bg: #173404;
+        --c-pos-text: #c0dd97;
+        --c-neg-bg: #501313;
+        --c-neg-text: #f7c1c1;
+        --c-neu-bg: #2c2c2a;
+        --c-neu-text: #d3d1c7;
+        --c-score-hi: #97c459;
+        --c-score-lo: #f09595;
+        --c-score-mid: #ef9f27;
+      }
+    }
+
+    body {
+      background: var(--c-bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--c-text);
+      min-height: 100vh;
+    }
+
+    #app {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 0.5px solid var(--c-border);
+    }
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: .35rem;
+    }
+    .header h1 span { color: var(--c-accent); font-style: italic; }
+    .header p { font-size: .875rem; color: var(--c-muted); line-height: 1.6; }
+
+    /* Input */
+    .input-wrap { position: relative; margin-bottom: 1.25rem; }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 1rem;
+      background: var(--c-surface);
+      border: 0.5px solid var(--c-border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9375rem;
+      color: var(--c-text);
+      resize: vertical;
+      outline: none;
+      transition: border-color .2s;
+      line-height: 1.7;
+    }
+    textarea:focus { border-color: var(--c-accent); }
+    textarea::placeholder { color: var(--c-muted); }
+    .char-count {
+      position: absolute;
+      bottom: .5rem;
+      right: .75rem;
+      font-size: .75rem;
+      color: var(--c-muted);
+    }
+
+    /* Actions */
+    .actions { display: flex; gap: .75rem; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+
+    button.primary {
+      padding: .625rem 1.5rem;
+      background: var(--c-accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    button.primary:hover { opacity: .88; }
+    button.primary:disabled { opacity: .45; cursor: not-allowed; }
+
+    button.ghost {
+      padding: .625rem 1rem;
+      background: transparent;
+      color: var(--c-muted);
+      border: 0.5px solid var(--c-border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    button.ghost:hover { background: var(--c-surface); }
+
+    /* Spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: .4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results */
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: fadeIn .4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--c-surface);
+      border: 0.5px solid var(--c-border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .card-label {
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin-bottom: .875rem;
+      font-weight: 500;
+    }
+
+    /* Sentiment */
+    .sent-row { display: flex; align-items: center; gap: .875rem; flex-wrap: wrap; }
+    .sentiment-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .35rem .875rem;
+      border-radius: 20px;
+      font-size: .875rem;
+      font-weight: 500;
+    }
+    .sent-positive { background: var(--c-pos-bg); color: var(--c-pos-text); }
+    .sent-negative { background: var(--c-neg-bg); color: var(--c-neg-text); }
+    .sent-neutral  { background: var(--c-neu-bg); color: var(--c-neu-text); }
+    .sent-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    /* Topic */
+    .topic-badge {
+      display: inline-block;
+      padding: .3rem .85rem;
+      background: var(--c-neu-bg);
+      color: var(--c-text);
+      border-radius: 6px;
+      font-size: .875rem;
+      margin-bottom: .5rem;
+    }
+    .topic-desc { font-size: .85rem; color: var(--c-muted); line-height: 1.6; }
+
+    /* Aspects */
+    .aspects-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+    }
+    @media (max-width: 480px) { .aspects-grid { grid-template-columns: 1fr; } }
+
+    .aspect-item {
+      padding: .875rem 1rem;
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+    }
+    .aspect-name {
+      font-size: .8rem;
+      color: var(--c-muted);
+      margin-bottom: .5rem;
+      text-transform: capitalize;
+    }
+    .aspect-bar-wrap {
+      height: 5px;
+      background: var(--c-border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: .45rem;
+    }
+    .aspect-bar { height: 100%; border-radius: 3px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+    .aspect-row { display: flex; justify-content: space-between; align-items: center; }
+    .aspect-score { font-size: .875rem; font-weight: 500; }
+    .aspect-polarity { font-size: .75rem; color: var(--c-muted); }
+
+    /* Suggestions */
+    .suggestions-list { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .suggestion-item {
+      font-size: .875rem;
+      line-height: 1.6;
+      padding: .6rem .875rem;
+      background: var(--c-neg-bg);
+      color: var(--c-neg-text);
+      border-radius: 8px;
+      border-left: 3px solid var(--c-neg-text);
+    }
+    .no-suggestions { font-size: .875rem; color: var(--c-muted); font-style: italic; }
+
+    /* Misc */
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--c-muted); font-size: .9rem; line-height: 1.8; }
+    .error-msg { padding: .875rem 1.25rem; background: var(--c-neg-bg); color: var(--c-neg-text); border-radius: 10px; font-size: .875rem; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .6rem; }
+
+    /* Tab navigation */
+    .tab-nav {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2.5rem;
+      border-bottom: 0.5px solid var(--c-border);
+    }
+    .tab-btn {
+      padding: .625rem 1.25rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .875rem;
+      color: var(--c-muted);
+      cursor: pointer;
+      margin-bottom: -0.5px;
+      transition: color .2s, border-color .2s;
+    }
+    .tab-btn:hover { color: var(--c-text); }
+    .tab-btn.active { color: var(--c-accent); border-bottom-color: var(--c-accent); font-weight: 500; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Tableau tab */
+    .tableau-section { margin-bottom: 3rem; }
+    .tableau-section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: .35rem;
+    }
+    .tableau-section-desc {
+      font-size: .85rem;
+      color: var(--c-muted);
+      line-height: 1.6;
+      margin-bottom: 1.25rem;
+    }
+    .tableau-embed {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border: 0.5px solid var(--c-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--c-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tableau-placeholder {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .tableau-placeholder p {
+      font-size: .8rem;
+      color: var(--c-muted);
+      margin-top: .5rem;
+      font-family: monospace;
+    }
+    .tableau-placeholder-icon {
+      font-size: 2rem;
+      margin-bottom: .75rem;
+      opacity: .3;
+    }
+    .tableau-divider {
+      height: 0.5px;
+      background: var(--c-border);
+      margin: 2.5rem 0;
+    }
+
+    /* API status badge */
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .75rem;
+      color: var(--c-muted);
+      padding: .25rem .6rem;
+      border: 0.5px solid var(--c-border);
+      border-radius: 20px;
+    }
+    .api-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .api-dot.local  { background: var(--c-score-mid); }
+    .api-dot.remote { background: var(--c-score-hi); }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>Review Analyser <span>/ Bangkok</span></h1>
+    <p>Text mining analysis of Bangkok Airbnb guest reviews — explore district-level insights or analyse individual reviews.</p>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('analyser', this)">Review analyser</button>
+    <button class="tab-btn" onclick="switchTab('dashboards', this)">District dashboards</button>
+  </nav>
+
+  <!-- TAB: Review analyser -->
+  <div id="tab-analyser" class="tab-pane active">
+  <div class="input-wrap">
+    <textarea
+      id="review-input"
+      placeholder="e.g. The apartment was spotless and the host replied within minutes. The wifi was a bit slow but the location near BTS made up for it. Would definitely recommend!"
+      maxlength="2000"
+    ></textarea>
+    <span class="char-count" id="char-count">0 / 2000</span>
+  </div>
+
+  <div class="actions">
+    <button class="primary" id="analyse-btn" onclick="analyse()">Analyse review</button>
+    <button class="ghost" onclick="loadSample()">Load sample</button>
+    <span class="api-badge" id="api-badge">
+      <span class="api-dot local" id="api-dot"></span>
+      <span id="api-label">Local mode</span>
+    </span>
+  </div>
+
+  <div id="output">
+    <div class="empty">Enter a guest review above to see host-facing insights.</div>
+  </div>
+  </div>
+
+  <!-- TAB: District dashboards -->
+  <div id="tab-dashboards" class="tab-pane">
+
+    <!-- Dashboard 1 -->
+    <div class="tableau-section">
+      <div class="tableau-section-title">Sentiment by district</div>
+      <div class="tableau-section-desc">Overall positive, neutral, and negative review distribution across Bangkok neighbourhoods. Identifies which districts consistently receive the strongest guest feedback.</div>
+      <div class="tableau-embed">
+        <!-- Replace this block with your Tableau embed code:
+             Tableau Public → Share → Embed Code → paste the <tableau-viz> tag here -->
+        <div class="tableau-placeholder">
+          <div class="tableau-placeholder-icon">▦</div>
+          <strong>Sentiment by district</strong>
+          <p>Paste Tableau embed code here</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <!-- Dashboard 2 -->
+    <div class="tableau-section">
+      <div class="tableau-section-title">Aspect scores by neighbourhood</div>
+      <div class="tableau-section-desc">NSS scores broken down by aspect (cleanliness, location, communication, check-in, value, amenities) per neighbourhood. Highlights where specific aspects are under- or over-performing geographically.</div>
+      <div class="tableau-embed">
+        <div class="tableau-placeholder">
+          <div class="tableau-placeholder-icon">▦</div>
+          <strong>Aspect scores by neighbourhood</strong>
+          <p>Paste Tableau embed code here</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <!-- Dashboard 3 -->
+    <div class="tableau-section">
+      <div class="tableau-section-title">Topic distribution across Bangkok</div>
+      <div class="tableau-section-desc">How review topics (transport, cleanliness, host responsiveness, etc.) are distributed across districts. Reveals what guests talk about most depending on where they stay.</div>
+      <div class="tableau-embed">
+        <div class="tableau-placeholder">
+          <div class="tableau-placeholder-icon">▦</div>
+          <strong>Topic distribution across Bangkok</strong>
+          <p>Paste Tableau embed code here</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <!-- Dashboard 4 -->
+    <div class="tableau-section">
+      <div class="tableau-section-title">Host improvement signals by area</div>
+      <div class="tableau-section-desc">Aggregated improvement signals extracted from guest reviews, grouped by district. Surfaces the most common complaints and suggestions hosts in each area should act on.</div>
+      <div class="tableau-embed">
+        <div class="tableau-placeholder">
+          <div class="tableau-placeholder-icon">▦</div>
+          <strong>Host improvement signals by area</strong>
+          <p>Paste Tableau embed code here</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* =============================================================
+   CONFIGURATION
+   -------------------------------------------------------------
+   To connect to a real Flask API, set API_ENDPOINT to your URL:
+     const API_ENDPOINT = 'https://your-deployed-url/analyse';
+
+   Your Flask route should accept POST JSON { "review": "..." }
+   and return:
+   {
+     "sentiment": { "label": "positive", "confidence": 92 },
+     "topic":     { "name": "Host responsiveness" },
+     "aspects": {
+       "cleanliness": { "nss": 0.8, "label": "Excellent" },
+       "location":    { "nss": 0.6, "label": "Good" }
+     },
+     "suggestions": ["Wish the wifi was faster.", "Could use more towels."]
+   }
+
+   Leave as null to run in local (browser-only) mode.
+   ============================================================= */
+const API_ENDPOINT = 'http://localhost:5000/analyse'; // change to deployed URL when hosting remotely
+
+/* ── Aspect keyword dictionary
+   Mirrors task3_rulebased.ipynb — seed words + Word2Vec expansion + manual pruning ── */
+const ASPECT_KEYWORDS = {
+  cleanliness:   ['clean','dirty','smell','dusty','dust','spotless','filthy','stain','stained',
+                  'messy','odor','odour','stinky','mold','mouldy','gross','grimy','grime',
+                  'reeked','smelly','unclean','damp','sanitized','hygienic','musty'],
+  location:      ['location','nearby','mrt','bts','skytrain','close','near','closeby','metro',
+                  'subway','train','convenient','central','walking distance','transport',
+                  'commute','accessible','area','neighbourhood','district','station'],
+  communication: ['host','responsive','reply','replied','response','communicate','helpful',
+                  'attentive','friendly','accommodating','answer','answered','supportive',
+                  'proactive','hostess','owner','reachable','quick','prompt'],
+  check_in:      ['checkin','check-in','check in','checkout','check out','key','keycard',
+                  'lockbox','passcode','arrival','departure','access','password','code',
+                  'door','entry','instructions'],
+  value:         ['value','price','pricing','worth','money','cheap','expensive','affordable',
+                  'overpriced','rate','cost','budget','steal','reasonable','pricey'],
+  amenities:     ['wifi','internet','kitchen','aircon','air conditioning','fridge','pool','gym',
+                  'shower','towel','microwave','oven','washer','laundry','tv','bathroom',
+                  'toilet','balcony','rooftop','elevator','lift']
+};
+
+/* ── BERTopic cluster names — from BERT_Gemini_Final_8.csv ── */
+const TOPICS = [
+  { name: 'General Bangkok stay experience',  keywords: ['bangkok','stay','place','apartment','recommend','thai','time','great','amazing','overall'] },
+  { name: 'Cleanliness & property quality',   keywords: ['clean','good','location','room','nice','staff','tidy','spotless','great place'] },
+  { name: 'Apartment facilities & amenities', keywords: ['apartment','pool','room','nice','clean','great','bed','gym','wifi','kitchen','fridge','condo'] },
+  { name: 'Host responsiveness',              keywords: ['host','great','responsive','helpful','stay','friendly','clean','nice','kind','warm','welcoming'] },
+  { name: 'Transport & BTS accessibility',    keywords: ['bts','mrt','skytrain','taxi','grab','transport','walk','station','convenient','close','distance','bus','condo'] },
+  { name: 'Gratitude & positive experience',  keywords: ['thank','thanks','wonderful','lovely','perfect','fantastic','excellent','pleasure','grateful','appreciate'] },
+  { name: 'General positive stay',            keywords: ['bkk','place','stay','great','nice','good','comfortable','recommend','enjoyable'] },
+  { name: 'Airbnb host & apartment overall',  keywords: ['airbnb','host','apartment','stay','experience','overall','room','booking','property'] }
+];
+
+/* ── Signal phrases for suggestion extraction
+   Mirrors task3_suggestion_extraction.ipynb ── */
+const SIGNAL_PHRASES = [
+  'should','could','wish','needs','need to','missing','would be better',
+  'hope','would have been','recommend','suggest','next time','improve',
+  'fix','add','update','unfortunately','however','but','except','though',
+  'would have liked','would prefer','would appreciate','lacking'
+];
+
+const SAMPLES = [
+  "The apartment was absolutely spotless and the host replied to every message within minutes. The location near BTS Asok was perfect — walking distance to Terminal 21. Wifi was a bit slow but overall a fantastic stay. Would definitely book again!",
+  "Disappointed with this one. The place smelled musty and the air conditioning was broken on arrival. The host took hours to respond and the check-in code didn't work initially. Price is too high for what you get. The location is okay but parking is a nightmare.",
+  "Lovely condo with a stunning pool view. Host Nuttee was incredibly responsive and welcoming. The kitchen was well-stocked and the wifi was super fast. Wish there were more towels provided for a week-long stay. Great value for Bangkok!"
+];
+
+let sampleIdx = 0;
+const textarea  = document.getElementById('review-input');
+const charCount = document.getElementById('char-count');
+const apiDot    = document.getElementById('api-dot');
+const apiLabel  = document.getElementById('api-label');
+
+if (API_ENDPOINT) {
+  apiDot.className   = 'api-dot remote';
+  apiLabel.textContent = 'Connected to API';
+}
+
+textarea.addEventListener('input', () => {
+  charCount.textContent = textarea.value.length + ' / 2000';
+});
+
+function loadSample() {
+  textarea.value = SAMPLES[sampleIdx % SAMPLES.length];
+  charCount.textContent = textarea.value.length + ' / 2000';
+  sampleIdx++;
+}
+
+/* ── Sentence-level polarity scorer
+   Mirrors VADER compound logic from task3_rulebased.ipynb.
+   Keywords detect WHICH aspect a sentence belongs to;
+   this function scores the sentiment of the sentence itself. ── */
+function scoreSentence(sentence) {
+  const s = sentence.toLowerCase();
+  const posWords = [
+    'amazing','fantastic','wonderful','excellent','perfect','loved','love','great','good',
+    'nice','clean','spotless','friendly','helpful','responsive','beautiful','comfortable',
+    'recommend','brilliant','outstanding','superb','enjoyed','best','happy','pleased',
+    'impressed','cozy','cosy','lovely','welcoming','spacious','modern','quiet','convenient',
+    'stunning','smooth','easy','fast','quick','warm','kind','generous','delightful',
+    'pleasant','relaxing','gorgeous','ideal','immaculate','well-stocked','stocked'
+  ];
+  const negWords = [
+    'dirty','disgusting','broken','awful','terrible','horrible','bad','poor','worst',
+    'disappointed','disappointing','issue','problem','noisy','slow','rude','unresponsive',
+    'smelly','stain','mold','musty','overpriced','expensive','useless','unclean','gross',
+    'filthy','lacking','missing','unfortunately','uncomfortable','dated','cramped',
+    'nightmare','smelled','stank','reek','reeked','leaked','leaking','flooded','hours',
+    'too high','too small','too loud','too cold','too hot','didn\'t work','not work'
+  ];
+  const intensifiers = ['very','extremely','absolutely','really','so','quite','super','incredibly','totally','completely'];
+  const negators     = ['not','no','never','wasn\'t','didn\'t','couldn\'t','don\'t','isn\'t','weren\'t','wouldn\'t','hardly','barely'];
+
+  const words = s.split(/\W+/);
+  let score = 0;
+  words.forEach((w, i) => {
+    const prev  = i > 0 ? words[i - 1] : '';
+    const mult  = intensifiers.includes(prev) ? 1.6 : 1;
+    const isNeg = negators.includes(prev);
+    if (posWords.includes(w)) score += isNeg ? -mult * 0.8 : mult;
+    if (negWords.includes(w)) score += isNeg ?  mult * 0.5 : -mult;
+  });
+  negators.forEach(n => { if (s.includes(n + ' ')) score *= 0.65; });
+
+  const norm = Math.max(-1, Math.min(1, score / Math.max(words.length / 5, 1)));
+  if (norm >=  0.05) return 'positive';
+  if (norm <= -0.05) return 'negative';
+  return 'neutral';
+}
+
+/* ── Local sentiment classifier (overall review)
+   Approximates LR predict() output, without predict_proba confidence. ── */
+function detectSentimentLocal(text) {
+  const lower = text.toLowerCase();
+  const posWords = [
+    'amazing','fantastic','wonderful','excellent','perfect','loved','love','great','good',
+    'nice','clean','spotless','friendly','helpful','responsive','beautiful','comfortable',
+    'recommend','brilliant','outstanding','superb','enjoyed','best','happy','pleased',
+    'impressed','cozy','cosi','lovely','welcoming','spacious','modern','quiet','convenient',
+    'stunning','smooth','easy','fast','quick','warm','kind','generous','delightful'
+  ];
+  const negWords = [
+    'dirty','disgusting','broken','awful','terrible','horrible','bad','poor','worst',
+    'disappointed','disappointing','issue','problem','noisy','slow','rude','unresponsive',
+    'smelly','stain','mold','musty','overpriced','expensive','useless','unclean','gross',
+    'filthy','lacking','missing','unfortunately','uncomfortable','dated','cramped','nightmare'
+  ];
+  const intensifiers = ['very','extremely','absolutely','really','so','quite','super','incredibly','totally'];
+  const negators     = ['not','no','never','wasn\'t','didn\'t','couldn\'t','don\'t','isn\'t','weren\'t'];
+
+  const words = lower.split(/\W+/);
+  let score = 0;
+  words.forEach((w, i) => {
+    const prev  = i > 0 ? words[i - 1] : '';
+    const mult  = intensifiers.includes(prev) ? 1.6 : 1;
+    const isNeg = negators.includes(prev);
+    if (posWords.includes(w)) score += isNeg ? -mult * 0.8 : mult;
+    if (negWords.includes(w)) score += isNeg ?  mult * 0.5 : -mult;
+  });
+
+  const norm = Math.max(-1, Math.min(1, score / Math.max(words.length / 6, 1)));
+  if (norm >= 0.08)  return { label: 'positive' };
+  if (norm <= -0.08) return { label: 'negative' };
+  return { label: 'neutral' };
+}
+
+/* ── Local topic classifier
+   Keyword-based matching against BERTopic cluster names. ── */
+function detectTopicLocal(text) {
+  const lower = text.toLowerCase();
+  let best = TOPICS[0], bestScore = 0;
+  TOPICS.forEach(t => {
+    const s = t.keywords.filter(k => lower.includes(k)).length;
+    if (s > bestScore) { bestScore = s; best = t; }
+  });
+  return { name: best.name };
+}
+
+/* ── Local aspect detector
+   Mirrors task3_rulebased.ipynb pipeline exactly:
+   1. Tokenise into sentences (like NLTK sent_tokenize)
+   2. Score each sentence with scoreSentence() (like VADER compound)
+   3. Skip neutral sentences (same as notebook)
+   4. Assign sentence to aspects via keyword matching
+   5. NSS = (PA - NA) / (PA + NA) per aspect ── */
+function detectAspectsLocal(text) {
+  const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+  const counts = {};
+
+  sentences.forEach(sentence => {
+    const lower    = sentence.toLowerCase();
+    const polarity = scoreSentence(sentence);
+    if (polarity === 'neutral') return; // excluded from NSS — matches notebook
+
+    Object.entries(ASPECT_KEYWORDS).forEach(([aspect, keywords]) => {
+      if (!keywords.some(k => lower.includes(k))) return;
+      if (!counts[aspect]) counts[aspect] = { pos: 0, neg: 0 };
+      polarity === 'positive' ? counts[aspect].pos++ : counts[aspect].neg++;
+    });
+  });
+
+  const results = {};
+  Object.entries(counts).forEach(([aspect, { pos, neg }]) => {
+    const total = pos + neg;
+    if (total === 0) return;
+    results[aspect] = {
+      nss: Math.round(((pos - neg) / total) * 100) / 100,
+      pos,
+      neg
+    };
+  });
+  return results;
+}
+
+/* ── Local suggestion extractor
+   Mirrors signal phrase list from task3_suggestion_extraction.ipynb ── */
+function extractSuggestionsLocal(text) {
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  return sentences
+    .filter(s => SIGNAL_PHRASES.some(p => s.toLowerCase().includes(p)) && s.trim().length > 20)
+    .map(s => s.trim())
+    .slice(0, 4);
+}
+
+/* ── Helpers ── */
+function nssColor(v) {
+  if (v >  0.3) return 'var(--c-score-hi)';
+  if (v < -0.3) return 'var(--c-score-lo)';
+  return 'var(--c-score-mid)';
+}
+function nssLabel(v) {
+  if (v >= 0.7)  return 'Excellent';
+  if (v >= 0.3)  return 'Good';
+  if (v >= -0.3) return 'Mixed';
+  if (v >= -0.7) return 'Poor';
+  return 'Critical';
+}
+
+/* ── Render results ── */
+function renderResults(sentiment, topic, aspects, suggestions) {
+  const sentClass = 'sent-' + sentiment.label;
+  const label     = sentiment.label.charAt(0).toUpperCase() + sentiment.label.slice(1);
+
+  const aspectEntries = Object.entries(aspects);
+  const aspectsHTML = aspectEntries.length > 0
+    ? '<div class="aspects-grid">' + aspectEntries.map(([a, d]) => {
+        const barW = Math.round(((d.nss + 1) / 2) * 100);
+        return `<div class="aspect-item">
+          <div class="aspect-name">${a.replace('_', ' ')}</div>
+          <div class="aspect-bar-wrap">
+            <div class="aspect-bar" style="width:${barW}%;background:${nssColor(d.nss)}"></div>
+          </div>
+          <div class="aspect-row">
+            <span class="aspect-score" style="color:${nssColor(d.nss)}">${nssLabel(d.nss)}</span>
+            <span class="aspect-polarity">NSS ${d.nss >= 0 ? '+' : ''}${d.nss.toFixed(2)}</span>
+          </div>
+        </div>`;
+      }).join('') + '</div>'
+    : '<p class="no-suggestions">No specific aspects detected in this review.</p>';
+
+  const sugHTML = suggestions.length > 0
+    ? '<ul class="suggestions-list">' + suggestions.map(s => `<li class="suggestion-item">${s}</li>`).join('') + '</ul>'
+    : '<p class="no-suggestions">No specific improvement suggestions detected in this review.</p>';
+
+  document.getElementById('output').innerHTML = `
+    <div class="results">
+      <div class="card">
+        <div class="card-label">Task 1 — Overall sentiment</div>
+        <div class="sent-row">
+          <span class="sentiment-pill ${sentClass}">
+            <span class="sent-dot"></span>${label}
+          </span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Task 2 — Dominant topic</div>
+        <div class="tag-row"><span class="topic-badge">${topic.name}</span></div>
+        <p class="topic-desc">This review most closely matches the <em>${topic.name.toLowerCase()}</em> cluster from the BERTopic model trained on Bangkok Airbnb reviews.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Task 3 — Aspect sentiment scores (NSS)</div>
+        ${aspectsHTML}
+      </div>
+
+      <div class="card">
+        <div class="card-label">Task 3 — Improvement signals for host</div>
+        ${sugHTML}
+      </div>
+    </div>`;
+}
+
+/* ── Main analyse function ── */
+async function analyse() {
+  const text = textarea.value.trim();
+  if (!text || text.length < 15) {
+    document.getElementById('output').innerHTML =
+      '<div class="error-msg">Please enter a review of at least 15 characters.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('analyse-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analysing...';
+
+  try {
+    if (API_ENDPOINT) {
+      /* Remote mode: call Flask API */
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review: text })
+      });
+      if (!response.ok) throw new Error('API returned ' + response.status);
+      const data = await response.json();
+      renderResults(data.sentiment, data.topic, data.aspects, data.suggestions);
+    } else {
+      /* Local mode: run in-browser logic */
+      await new Promise(r => setTimeout(r, 500));
+      renderResults(
+        detectSentimentLocal(text),
+        detectTopicLocal(text),
+        detectAspectsLocal(text),
+        extractSuggestionsLocal(text)
+      );
+    }
+  } catch (err) {
+    document.getElementById('output').innerHTML =
+      `<div class="error-msg">Error: ${err.message}. Check the API endpoint or set API_ENDPOINT = null for local mode.</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Analyse review';
+}
+
+/* Cmd/Ctrl + Enter to analyse */
+textarea.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') analyse();
+});
+
+/* Tab switching */
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
