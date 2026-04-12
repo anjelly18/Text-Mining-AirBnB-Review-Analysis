@@ -6,45 +6,115 @@
   <title>Airbnb Review Analyser — Bangkok</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --c-bg: #faf9f6;
+      --c-bg: #f5f4f7;
       --c-surface: #fff;
-      --c-border: #e8e4dd;
-      --c-text: #1a1916;
-      --c-muted: #6b6861;
-      --c-accent: #c17f4a;
-      --c-pos-bg: #eaf3de;
-      --c-pos-text: #3b6d11;
-      --c-neg-bg: #fcebeb;
-      --c-neg-text: #a32d2d;
-      --c-neu-bg: #f1efe8;
-      --c-neu-text: #444441;
-      --c-score-hi: #3b6d11;
-      --c-score-lo: #a32d2d;
-      --c-score-mid: #854f0b;
+      --c-border: #e5e3ea;
+      --c-text: #232129;
+      --c-muted: #777381;
+      --c-accent: #ff5a5f;
+      --c-accent-soft: rgba(255, 90, 95, 0.2);
+      --c-pos-bg: #e8f7f3;
+      --c-pos-text: #008b77;
+      --c-neg-bg: #ffecef;
+      --c-neg-text: #d8345f;
+      --c-neu-bg: #f3f2f6;
+      --c-neu-text: #4f4a59;
+      --c-radar-grid: #e4d9df;
+      --c-radar-axis: #d6c5cc;
+      --c-radar-label: #8a4e63;
+      --c-radar-fill: rgba(255, 90, 95, 0.14);
+      --c-radar-stroke: #ff5a5f;
+      --c-radar-node: #ff385c;
+      --c-score-hi: #00a699;
+      --c-score-lo: #ff385c;
+      --c-score-mid: #767676;
+      --c-shadow: 0 14px 30px rgba(24, 20, 35, 0.08);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --c-bg: #1a1916;
-        --c-surface: #242220;
-        --c-border: #3a3834;
-        --c-text: #f0ede6;
-        --c-muted: #9a9690;
-        --c-accent: #d4965f;
-        --c-pos-bg: #173404;
-        --c-pos-text: #c0dd97;
-        --c-neg-bg: #501313;
-        --c-neg-text: #f7c1c1;
-        --c-neu-bg: #2c2c2a;
-        --c-neu-text: #d3d1c7;
-        --c-score-hi: #97c459;
-        --c-score-lo: #f09595;
-        --c-score-mid: #ef9f27;
+        --c-bg: #17161b;
+        --c-surface: #222028;
+        --c-border: #373442;
+        --c-text: #f2f1f5;
+        --c-muted: #aaa6b4;
+        --c-accent: #ff5a5f;
+        --c-accent-soft: rgba(255, 106, 123, 0.26);
+        --c-pos-bg: #0f302b;
+        --c-pos-text: #9be0d5;
+        --c-neg-bg: #4a1b2b;
+        --c-neg-text: #ffc4d0;
+        --c-neu-bg: #2c2a35;
+        --c-neu-text: #d0cdd8;
+        --c-radar-grid: #4b3e4a;
+        --c-radar-axis: #5a4a58;
+        --c-radar-label: #ffb5c4;
+        --c-radar-fill: rgba(255, 106, 123, 0.2);
+        --c-radar-stroke: #ff8ba2;
+        --c-radar-node: #ff6b81;
+        --c-score-hi: #2dd4bf;
+        --c-score-lo: #ff6b81;
+        --c-score-mid: #b7b4be;
+        --c-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
       }
+    }
+
+    :root[data-theme='light'] {
+      --c-bg: #f5f4f7;
+      --c-surface: #fff;
+      --c-border: #e5e3ea;
+      --c-text: #232129;
+      --c-muted: #777381;
+      --c-accent: #ff5a5f;
+      --c-accent-soft: rgba(255, 90, 95, 0.2);
+      --c-pos-bg: #e8f7f3;
+      --c-pos-text: #008b77;
+      --c-neg-bg: #ffecef;
+      --c-neg-text: #d8345f;
+      --c-neu-bg: #f3f2f6;
+      --c-neu-text: #4f4a59;
+      --c-radar-grid: #e4d9df;
+      --c-radar-axis: #d6c5cc;
+      --c-radar-label: #8a4e63;
+      --c-radar-fill: rgba(255, 90, 95, 0.14);
+      --c-radar-stroke: #ff5a5f;
+      --c-radar-node: #ff385c;
+      --c-score-hi: #00a699;
+      --c-score-lo: #ff385c;
+      --c-score-mid: #767676;
+      --c-shadow: 0 14px 30px rgba(24, 20, 35, 0.08);
+    }
+
+    :root[data-theme='dark'] {
+      --c-bg: #17161b;
+      --c-surface: #222028;
+      --c-border: #373442;
+      --c-text: #f2f1f5;
+      --c-muted: #aaa6b4;
+      --c-accent: #ff5a5f;
+      --c-accent-soft: rgba(255, 106, 123, 0.26);
+      --c-pos-bg: #0f302b;
+      --c-pos-text: #9be0d5;
+      --c-neg-bg: #4a1b2b;
+      --c-neg-text: #ffc4d0;
+      --c-neu-bg: #2c2a35;
+      --c-neu-text: #d0cdd8;
+      --c-radar-grid: #4b3e4a;
+      --c-radar-axis: #5a4a58;
+      --c-radar-label: #ffb5c4;
+      --c-radar-fill: rgba(255, 106, 123, 0.2);
+      --c-radar-stroke: #ff8ba2;
+      --c-radar-node: #ff6b81;
+      --c-score-hi: #2dd4bf;
+      --c-score-lo: #ff6b81;
+      --c-score-mid: #b7b4be;
+      --c-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
     }
 
     body {
@@ -55,9 +125,14 @@
     }
 
     #app {
-      max-width: 720px;
+      max-width: 1280px;
       margin: 0 auto;
       padding: 2.5rem 1.5rem 5rem;
+    }
+
+    #tab-analyser {
+      max-width: 720px;
+      margin: 0 auto;
     }
 
     /* Header */
@@ -233,6 +308,71 @@
     .aspect-row { display: flex; justify-content: space-between; align-items: center; }
     .aspect-score { font-size: .875rem; font-weight: 500; }
     .aspect-polarity { font-size: .75rem; color: var(--c-muted); }
+    .aspect-source { font-size: .7rem; color: var(--c-muted); margin-top: .35rem; }
+
+    /* Radar */
+    .radar-wrap {
+      border: 0.5px solid var(--c-radar-grid);
+      border-radius: 10px;
+      padding: 1rem;
+      background: radial-gradient(circle at 50% 8%, var(--c-radar-fill), transparent 62%), var(--c-surface);
+    }
+    .radar-svg {
+      width: 100%;
+      max-width: 360px;
+      margin: 0 auto;
+      display: block;
+    }
+    .radar-caption {
+      margin-top: .75rem;
+      text-align: center;
+      font-size: .8rem;
+      color: var(--c-muted);
+      line-height: 1.5;
+    }
+
+    /* Strategic roadmap */
+    .roadmap-list { display: flex; flex-direction: column; gap: .85rem; }
+    .roadmap-item {
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      padding: .85rem .95rem;
+      background: var(--c-surface);
+    }
+    .roadmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: .55rem;
+      flex-wrap: wrap;
+    }
+    .roadmap-aspect {
+      font-size: .82rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--c-muted);
+    }
+    .roadmap-nss {
+      font-size: .78rem;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      border: 0.5px solid var(--c-border);
+      color: var(--c-neg-text);
+      background: var(--c-neg-bg);
+    }
+    .roadmap-bullets {
+      margin-left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+    }
+    .roadmap-bullets li {
+      font-size: .86rem;
+      line-height: 1.5;
+      color: var(--c-text);
+    }
 
     /* Suggestions */
     .suggestions-list { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
@@ -321,6 +461,565 @@
       background: var(--c-border);
       margin: 2.5rem 0;
     }
+    .dashboard-panel-hidden { display: none; }
+    #tab-dashboards.dashboard-focus .dashboard-panel {
+      margin-bottom: 0;
+    }
+    #tab-dashboards.dashboard-focus .dashboard-panel-active .tableau-embed {
+      aspect-ratio: auto;
+      min-height: 60vh;
+    }
+    #tab-dashboards.dashboard-focus .dashboard-panel-active .chart-shell {
+      min-height: 56vh;
+    }
+    #tab-dashboards.dashboard-focus .dashboard-panel-active .chart-shell.tall {
+      min-height: 60vh;
+    }
+
+    .chart-shell {
+      width: 100%;
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: .85rem;
+      position: relative;
+    }
+    .chart-shell.tall { min-height: 420px; }
+    .chart-shell.chart-shell-wide { min-width: 960px; }
+    .chart-shell canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .tableau-embed.chart-scroll-x {
+      overflow-x: auto;
+      justify-content: flex-start;
+    }
+    #chart-opportunity-matrix { min-width: 960px !important; }
+    .panel-opportunity .chart-shell { min-height: 430px; }
+    #tab-dashboards:not(.dashboard-focus) .panel-opportunity .chart-shell { min-height: 290px; }
+    .chart-note {
+      margin-top: .65rem;
+      font-size: .77rem;
+      color: var(--c-muted);
+      line-height: 1.5;
+    }
+    .chart-filters {
+      display: flex;
+      gap: .6rem;
+      align-items: center;
+      margin: 0 0 .85rem;
+      flex-wrap: wrap;
+      background: var(--c-surface);
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      padding: .55rem .65rem;
+    }
+    .chart-filters label {
+      font-size: .74rem;
+      color: var(--c-muted);
+    }
+    .chart-filters select,
+    .chart-filters input {
+      padding: .32rem .48rem;
+      border-radius: 8px;
+      border: 0.5px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-text);
+      font-size: .8rem;
+      min-width: 74px;
+    }
+    .chart-filters button {
+      padding: .32rem .55rem;
+      border-radius: 8px;
+      border: 0.5px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-text);
+      font-size: .78rem;
+      cursor: pointer;
+    }
+    .chart-filters input[type="number"] {
+      width: 80px;
+    }
+    .chart-loading {
+      font-size: .84rem;
+      color: var(--c-muted);
+      text-align: center;
+      line-height: 1.6;
+      padding: 1rem;
+    }
+    .insight-panel {
+      margin-top: .85rem;
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      background: var(--c-surface);
+      padding: .8rem .95rem;
+    }
+    .insight-title {
+      font-size: .77rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin-bottom: .5rem;
+    }
+    .insight-text {
+      font-size: .84rem;
+      line-height: 1.55;
+      color: var(--c-text);
+      margin-bottom: .45rem;
+    }
+    .insight-list {
+      margin-left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      font-size: .81rem;
+      line-height: 1.5;
+      color: var(--c-text);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .8rem;
+      margin-bottom: 1.1rem;
+    }
+    @media (max-width: 820px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+
+    .kpi-card {
+      background: var(--c-surface);
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      padding: .85rem .95rem;
+    }
+    .kpi-label {
+      font-size: .72rem;
+      color: var(--c-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .35rem;
+    }
+    .kpi-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem;
+      line-height: 1.2;
+    }
+    .kpi-sub {
+      margin-top: .2rem;
+      font-size: .76rem;
+      color: var(--c-muted);
+    }
+
+    .heatmap-wrap {
+      overflow-x: auto;
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      background: var(--c-surface);
+      width: 100%;
+      min-height: 360px;
+    }
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: .78rem;
+    }
+    .heatmap-table th,
+    .heatmap-table td {
+      border-bottom: 0.5px solid var(--c-border);
+      padding: .5rem .55rem;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .heatmap-table th {
+      background: var(--c-neu-bg);
+      color: var(--c-muted);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .heatmap-table td:first-child,
+    .heatmap-table th:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: var(--c-surface);
+      z-index: 2;
+    }
+    .heatmap-table th:first-child {
+      background: var(--c-neu-bg);
+    }
+    .heat-cell {
+      font-weight: 500;
+      border-radius: 6px;
+    }
+
+    .issue-board {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .8rem;
+    }
+    @media (max-width: 760px) {
+      .issue-board { grid-template-columns: 1fr; }
+    }
+    .issue-card {
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      padding: .8rem .9rem;
+      background: var(--c-surface);
+    }
+    .issue-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: .5rem;
+      flex-wrap: wrap;
+    }
+    .issue-district {
+      font-size: .86rem;
+      font-weight: 600;
+    }
+    .issue-tag {
+      font-size: .73rem;
+      border: 0.5px solid var(--c-border);
+      border-radius: 999px;
+      padding: .15rem .5rem;
+      color: var(--c-muted);
+      background: var(--c-neu-bg);
+    }
+    .issue-list {
+      margin-left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      font-size: .8rem;
+      line-height: 1.45;
+    }
+
+    .wordcloud-controls {
+      display: flex;
+      gap: .6rem;
+      align-items: center;
+      margin-bottom: .75rem;
+      flex-wrap: wrap;
+    }
+    .wordcloud-controls select {
+      padding: .45rem .6rem;
+      border-radius: 8px;
+      border: 0.5px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-text);
+      font-size: .82rem;
+    }
+    .wordcloud-controls input {
+      padding: .45rem .6rem;
+      border-radius: 8px;
+      border: 0.5px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-text);
+      font-size: .82rem;
+      width: 94px;
+    }
+    .wordcloud-canvas {
+      min-height: 220px;
+      border: 0.5px solid var(--c-border);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255,90,95,0.08), rgba(255,255,255,0));
+      padding: .9rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: .45rem .55rem;
+    }
+    .word-tag {
+      line-height: 1;
+      display: inline-block;
+      padding: .15rem .2rem;
+      border-radius: 4px;
+      user-select: none;
+    }
+
+    .exec-summary {
+      border: 0.5px solid var(--c-border);
+      border-left: 3px solid var(--c-accent);
+      border-radius: 10px;
+      padding: .85rem .95rem;
+      background: var(--c-surface);
+      margin-bottom: 1rem;
+    }
+    .exec-summary-label {
+      font-size: .72rem;
+      color: var(--c-muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .4rem;
+    }
+    .exec-summary-text {
+      font-size: .9rem;
+      line-height: 1.55;
+      color: var(--c-text);
+    }
+    .district-focus {
+      margin-top: .4rem;
+      font-size: .76rem;
+      color: var(--c-muted);
+    }
+
+    .section-inline-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      margin-left: .35rem;
+    }
+    .help-tip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 0.5px solid var(--c-border);
+      color: var(--c-muted);
+      font-size: .7rem;
+      cursor: help;
+      background: var(--c-neu-bg);
+      user-select: none;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-size: .7rem;
+      border: 0.5px solid var(--c-border);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .status-green { background: var(--c-pos-bg); color: var(--c-pos-text); }
+    .status-amber { background: #fff2de; color: #8a5a00; }
+    .status-red { background: var(--c-neg-bg); color: var(--c-neg-text); }
+
+    .action-list {
+      margin-left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+      font-size: .8rem;
+      line-height: 1.45;
+    }
+    .action-list li {
+      border-left: 2px solid var(--c-border);
+      padding-left: .45rem;
+    }
+    .action-impact {
+      font-size: .72rem;
+      color: var(--c-muted);
+      margin-top: .15rem;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+    .dashboard-sidebar {
+      background: var(--c-surface);
+      border: 0.5px solid var(--c-border);
+      border-radius: 14px;
+      padding: 1rem .9rem;
+      box-shadow: var(--c-shadow);
+      position: sticky;
+      top: 1rem;
+    }
+    .dashboard-brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: .95rem;
+    }
+    .dashboard-brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(140deg, #ff385c, #ff5a5f 62%, #ff8a65);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 16px rgba(255, 90, 95, 0.28);
+      flex-shrink: 0;
+    }
+    .dashboard-brand-logo svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+    .dashboard-brand-title {
+      font-size: .98rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+    .dashboard-brand-sub {
+      font-size: .74rem;
+      color: var(--c-muted);
+    }
+    .theme-toggle {
+      width: 100%;
+      border: 0.5px solid var(--c-border);
+      background: var(--c-neu-bg);
+      color: var(--c-text);
+      border-radius: 10px;
+      padding: .52rem .68rem;
+      font-size: .78rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      margin-bottom: .85rem;
+    }
+    .dashboard-nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+      margin-bottom: .85rem;
+    }
+    .dashboard-nav-btn {
+      width: 100%;
+      text-align: left;
+      border: 0.5px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-muted);
+      border-radius: 10px;
+      padding: .5rem .62rem;
+      font-size: .79rem;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .dashboard-nav-btn.active {
+      background: rgba(255, 90, 95, 0.12);
+      border-color: rgba(255, 90, 95, 0.38);
+      color: var(--c-text);
+      font-weight: 600;
+    }
+    .dashboard-sidebar-note {
+      font-size: .74rem;
+      line-height: 1.55;
+      color: var(--c-muted);
+      border-top: 0.5px solid var(--c-border);
+      padding-top: .7rem;
+    }
+
+    .dashboard-main {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    #executive-summary-box,
+    #district-kpis {
+      grid-column: 1 / -1;
+    }
+    .dashboard-main .tableau-divider {
+      display: none;
+    }
+    .dashboard-main .tableau-section {
+      margin-bottom: 0;
+      border: 0.5px solid var(--c-border);
+      border-radius: 14px;
+      background: var(--c-surface);
+      box-shadow: var(--c-shadow);
+      padding: 1rem;
+    }
+    .dashboard-main .tableau-section-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.06rem;
+      font-weight: 600;
+      margin-bottom: .25rem;
+    }
+    .dashboard-main .tableau-section-desc {
+      margin-bottom: .9rem;
+    }
+    .dashboard-main .tableau-embed {
+      aspect-ratio: auto;
+      min-height: 270px;
+      border-radius: 12px;
+    }
+
+    .chart-shell {
+      min-height: 280px;
+    }
+    .chart-shell.tall {
+      min-height: 360px;
+    }
+    .chart-shell.chart-shell-wide {
+      min-width: 0;
+    }
+    .tableau-embed.chart-scroll-x {
+      overflow: hidden;
+      justify-content: center;
+    }
+    #chart-opportunity-matrix {
+      min-width: 0 !important;
+    }
+    .panel-opportunity .chart-shell {
+      min-height: 300px;
+      height: 300px;
+      max-height: 320px;
+    }
+    .panel-opportunity .chart-shell canvas {
+      max-height: 100% !important;
+    }
+
+    .dashboard-panel {
+      scroll-margin-top: 1rem;
+    }
+    .dashboard-panel-active {
+      outline: 2px solid rgba(255, 90, 95, 0.25);
+      outline-offset: 2px;
+    }
+    #tab-dashboards.dashboard-focus .dashboard-main {
+      grid-template-columns: 1fr;
+    }
+    #tab-dashboards.dashboard-focus .panel-opportunity.dashboard-panel-active .chart-shell {
+      min-height: 56vh;
+      height: auto;
+      max-height: none;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+      .dashboard-sidebar {
+        position: static;
+      }
+      .dashboard-main {
+        grid-template-columns: 1fr;
+      }
+      .dashboard-nav-group {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .dashboard-nav-group {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .dashboard-main .tableau-section {
+        padding: .82rem;
+      }
+      .panel-opportunity .chart-shell {
+        min-height: 250px;
+        height: 250px;
+      }
+    }
 
     /* API status badge */
     .api-badge {
@@ -378,63 +1077,236 @@
   <!-- TAB: District dashboards -->
   <div id="tab-dashboards" class="tab-pane">
 
-    <!-- Dashboard 1 -->
-    <div class="tableau-section">
-      <div class="tableau-section-title">Sentiment by district</div>
-      <div class="tableau-section-desc">Overall positive, neutral, and negative review distribution across Bangkok neighbourhoods. Identifies which districts consistently receive the strongest guest feedback.</div>
-      <div class="tableau-embed">
-        <!-- Replace this block with your Tableau embed code:
-             Tableau Public → Share → Embed Code → paste the <tableau-viz> tag here -->
-        <div class="tableau-placeholder">
-          <div class="tableau-placeholder-icon">▦</div>
-          <strong>Sentiment by district</strong>
-          <p>Paste Tableau embed code here</p>
+    <div class="dashboard-layout">
+      <aside class="dashboard-sidebar">
+        <div class="dashboard-brand">
+          <div class="dashboard-brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 44L24 20a9 9 0 0 1 16 0l12 24" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="32" cy="42" r="7" stroke="white" stroke-width="5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="dashboard-brand-title">HostLens Pro</div>
+            <div class="dashboard-brand-sub">Bangkok Hosting Intelligence</div>
+          </div>
         </div>
+
+        <button id="theme-toggle-btn" class="theme-toggle" type="button">Switch to dark mode</button>
+
+        <div class="dashboard-nav-group" id="dashboard-nav-group">
+          <button class="dashboard-nav-btn active" data-panel="all" type="button">Overview</button>
+          <button class="dashboard-nav-btn" data-panel="opportunity" type="button">Opportunity Matrix</button>
+          <button class="dashboard-nav-btn" data-panel="sentiment" type="button">Sentiment</button>
+          <button class="dashboard-nav-btn" data-panel="aspects" type="button">Aspect Heatmap</button>
+          <button class="dashboard-nav-btn" data-panel="topics" type="button">Topics</button>
+          <button class="dashboard-nav-btn" data-panel="improvement" type="button">Improvement Signals</button>
+          <button class="dashboard-nav-btn" data-panel="action" type="button">Action Board</button>
+          <button class="dashboard-nav-btn" data-panel="wordcloud" type="button">Word Cloud</button>
+          <button class="dashboard-nav-btn" data-panel="friction" type="button">Friction</button>
+        </div>
+
+        <p class="dashboard-sidebar-note">Clean, card-based layout inspired by Airbnb host tools. Use the side menu for quick jumps and keep All Charts for the full portfolio view.</p>
+      </aside>
+
+      <div class="dashboard-main">
+
+    <div id="executive-summary-box" class="exec-summary">
+      <div class="exec-summary-label">Executive Summary</div>
+      <div class="exec-summary-text">Preparing district insights...</div>
+      <div class="district-focus" id="district-focus-label"></div>
+    </div>
+
+    <div id="district-kpis" class="kpi-grid"></div>
+
+    <div class="tableau-section dashboard-panel panel-opportunity" data-panel="opportunity">
+      <div class="tableau-section-title">District opportunity matrix</div>
+      <div class="tableau-section-desc">Prioritize districts where issue rate is high and average NSS is low. Bubble size reflects review/suggestion volume.</div>
+      <div class="chart-filters">
+        <label for="filter-opportunity-topn">Top N</label>
+        <input id="filter-opportunity-topn" type="number" min="5" max="30" step="1" value="18" />
+        <label for="filter-opportunity-minsug">Min suggestions</label>
+        <input id="filter-opportunity-minsug" type="number" min="0" max="5000" step="1" value="0" />
+        <label for="filter-opportunity-sort">Sort</label>
+        <select id="filter-opportunity-sort">
+          <option value="risk" selected>Risk</option>
+          <option value="volume">Volume</option>
+          <option value="nss">NSS</option>
+        </select>
+        <button id="opportunity-zoom-in" type="button">Zoom in</button>
+        <button id="opportunity-zoom-out" type="button">Zoom out</button>
+        <button id="opportunity-zoom-reset" type="button">Reset zoom</button>
       </div>
+      <div class="tableau-embed chart-scroll-x">
+        <div class="chart-shell chart-shell-wide"><canvas id="chart-opportunity-matrix"></canvas></div>
+      </div>
+      <div class="chart-note" id="chart-note-opportunity"></div>
+      <div id="opportunity-interpretation-panel" class="insight-panel"></div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <div class="tableau-section dashboard-panel" data-panel="sentiment">
+      <div class="tableau-section-title">Sentiment by district</div>
+      <div class="tableau-section-desc">100% stacked sentiment rates by district, sorted by negative-rate pressure so riskier areas are immediately visible.</div>
+      <div class="chart-filters">
+        <label for="filter-sentiment-topn">Top N</label>
+        <input id="filter-sentiment-topn" type="number" min="5" max="30" step="1" value="14" />
+        <label for="filter-sentiment-minvolume">Min volume</label>
+        <input id="filter-sentiment-minvolume" type="number" min="0" max="50000" step="1" value="0" />
+        <label for="filter-sentiment-view">View</label>
+        <select id="filter-sentiment-view">
+          <option value="stacked" selected>Stacked share</option>
+          <option value="net_volume">Net sentiment + volume</option>
+        </select>
+        <label for="filter-sentiment-sort">Sort</label>
+        <select id="filter-sentiment-sort">
+          <option value="negative" selected>Negative rate</option>
+          <option value="positive">Positive rate</option>
+          <option value="net">Net sentiment</option>
+          <option value="volume">Volume</option>
+        </select>
+      </div>
+      <div class="tableau-embed">
+        <div class="chart-shell"><canvas id="chart-sentiment-district"></canvas></div>
+      </div>
+      <div class="chart-note" id="chart-note-sentiment"></div>
+      <div id="sentiment-interpretation-panel" class="insight-panel"></div>
     </div>
 
     <div class="tableau-divider"></div>
 
     <!-- Dashboard 2 -->
-    <div class="tableau-section">
+    <div class="tableau-section dashboard-panel" data-panel="aspects">
       <div class="tableau-section-title">Aspect scores by neighbourhood</div>
-      <div class="tableau-section-desc">NSS scores broken down by aspect (cleanliness, location, communication, check-in, value, amenities) per neighbourhood. Highlights where specific aspects are under- or over-performing geographically.</div>
-      <div class="tableau-embed">
-        <div class="tableau-placeholder">
-          <div class="tableau-placeholder-icon">▦</div>
-          <strong>Aspect scores by neighbourhood</strong>
-          <p>Paste Tableau embed code here</p>
-        </div>
+      <div class="tableau-section-desc">Aspect heatmap (NSS) across districts for Cleanliness, Location, Communication, Check-in, Value, and Amenities, plus average NSS and volume.</div>
+      <div class="chart-filters">
+        <label for="filter-aspects-topn">Top N</label>
+        <input id="filter-aspects-topn" type="number" min="8" max="30" step="1" value="18" />
+        <label for="filter-aspects-sort">Sort</label>
+        <select id="filter-aspects-sort">
+          <option value="avg_nss" selected>Avg NSS</option>
+          <option value="cleanliness">Cleanliness</option>
+          <option value="location">Location</option>
+          <option value="communication">Communication</option>
+          <option value="check_in">Check-in</option>
+          <option value="value">Value</option>
+          <option value="amenities">Amenities</option>
+        </select>
       </div>
+      <div class="tableau-embed">
+        <div class="chart-shell tall"><div id="aspect-heatmap" class="heatmap-wrap"></div></div>
+      </div>
+      <div class="chart-note" id="chart-note-aspects"></div>
+      <div id="aspects-interpretation-panel" class="insight-panel"></div>
     </div>
 
     <div class="tableau-divider"></div>
 
     <!-- Dashboard 3 -->
-    <div class="tableau-section">
-      <div class="tableau-section-title">Topic distribution across Bangkok</div>
-      <div class="tableau-section-desc">How review topics (transport, cleanliness, host responsiveness, etc.) are distributed across districts. Reveals what guests talk about most depending on where they stay.</div>
-      <div class="tableau-embed">
-        <div class="tableau-placeholder">
-          <div class="tableau-placeholder-icon">▦</div>
-          <strong>Topic distribution across Bangkok</strong>
-          <p>Paste Tableau embed code here</p>
-        </div>
+    <div class="tableau-section dashboard-panel" data-panel="topics">
+      <div class="tableau-section-title">Topic distribution (LDA)</div>
+      <div class="tableau-section-desc">Distribution of LDA-aligned topic labels from your pipeline (e.g., Complaints & Issues, Check-in & Arrival, Facilities & Amenities).</div>
+      <div class="chart-filters">
+        <label for="filter-topics-topn">Top N topics</label>
+        <input id="filter-topics-topn" type="number" min="4" max="20" step="1" value="12" />
+        <label for="filter-topics-mincount">Min count</label>
+        <input id="filter-topics-mincount" type="number" min="0" max="5000" step="1" value="0" />
       </div>
+      <div class="tableau-embed">
+        <div class="chart-shell"><canvas id="chart-topic-bangkok"></canvas></div>
+      </div>
+      <div class="chart-note" id="chart-note-topics"></div>
+      <div id="topics-interpretation-panel" class="insight-panel"></div>
     </div>
 
     <div class="tableau-divider"></div>
 
     <!-- Dashboard 4 -->
-    <div class="tableau-section">
-      <div class="tableau-section-title">Host improvement signals by area</div>
-      <div class="tableau-section-desc">Aggregated improvement signals extracted from guest reviews, grouped by district. Surfaces the most common complaints and suggestions hosts in each area should act on.</div>
+    <div class="tableau-section dashboard-panel" data-panel="improvement">
+      <div class="tableau-section-title">Host improvement signals by area
+        <span class="section-inline-meta">
+          <span id="benchmark-status-pill" class="status-pill status-amber">Benchmark loading</span>
+          <span class="help-tip" title="Issue Rate represents the percentage of negative sentiment mentions within this specific topic cluster.">?</span>
+        </span>
+      </div>
+      <div class="tableau-section-desc">Issue-rate vs total-suggestion pressure by district to identify where operational fixes should be prioritized first.</div>
+      <div class="chart-filters">
+        <label for="filter-improvement-topn">Top N</label>
+        <input id="filter-improvement-topn" type="number" min="5" max="30" step="1" value="14" />
+        <label for="filter-improvement-status">Status</label>
+        <select id="filter-improvement-status">
+          <option value="all" selected>All</option>
+          <option value="red">Red only</option>
+          <option value="amber">Amber only</option>
+          <option value="green">Green only</option>
+        </select>
+      </div>
       <div class="tableau-embed">
-        <div class="tableau-placeholder">
-          <div class="tableau-placeholder-icon">▦</div>
-          <strong>Host improvement signals by area</strong>
-          <p>Paste Tableau embed code here</p>
-        </div>
+        <div class="chart-shell"><canvas id="chart-improvement-area"></canvas></div>
+      </div>
+      <div class="chart-note" id="chart-note-improvement"></div>
+      <div id="improvement-interpretation-panel" class="insight-panel"></div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <div class="tableau-section dashboard-panel" data-panel="action">
+      <div class="tableau-section-title">Action-Oriented Suggestion Board</div>
+      <div class="tableau-section-desc">Suggestions are grouped into key action categories with frequency tags and estimated impact if resolved.</div>
+      <div class="chart-filters">
+        <label for="filter-action-mode">View</label>
+        <select id="filter-action-mode">
+          <option value="selected" selected>Selected district</option>
+          <option value="top">Top districts</option>
+        </select>
+        <label for="filter-action-topn">Districts</label>
+        <input id="filter-action-topn" type="number" min="1" max="20" step="1" value="10" />
+        <label for="filter-action-cats">Categories/district</label>
+        <input id="filter-action-cats" type="number" min="1" max="8" step="1" value="4" />
+      </div>
+      <div id="issue-suggestion-board" class="issue-board"></div>
+      <div class="chart-note" id="chart-note-issue-board"></div>
+      <div id="action-interpretation-panel" class="insight-panel"></div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <div class="tableau-section dashboard-panel" data-panel="wordcloud">
+      <div class="tableau-section-title">Improvement word cloud explorer</div>
+      <div class="tableau-section-desc">Select a district to view the most repeated issue-oriented improvement terms from guest feedback.</div>
+      <div class="wordcloud-controls">
+        <label for="wordcloud-district-select">District (synced with heatmap click)</label>
+        <select id="wordcloud-district-select"></select>
+        <label for="filter-wordcloud-topn">Top words</label>
+        <input id="filter-wordcloud-topn" type="number" min="10" max="80" step="1" value="45" />
+      </div>
+      <div id="wordcloud-canvas" class="wordcloud-canvas"></div>
+      <div class="chart-note" id="chart-note-wordcloud"></div>
+      <div id="wordcloud-interpretation-panel" class="insight-panel"></div>
+    </div>
+
+    <div class="tableau-divider"></div>
+
+    <div class="tableau-section dashboard-panel" data-panel="friction">
+      <div class="tableau-section-title">Sentiment friction points</div>
+      <div class="tableau-section-desc">Diverging bar chart of top positive vs negative term drivers. Quickly shows what guests love versus what causes friction.</div>
+      <div class="chart-filters">
+        <label for="filter-friction-scope">Scope</label>
+        <select id="filter-friction-scope">
+          <option value="selected" selected>Selected district</option>
+          <option value="overall">Portfolio overall</option>
+        </select>
+        <label for="filter-friction-terms">Top terms each side</label>
+        <input id="filter-friction-terms" type="number" min="3" max="10" step="1" value="5" />
+      </div>
+      <div class="tableau-embed">
+        <div class="chart-shell"><canvas id="chart-friction-points"></canvas></div>
+      </div>
+      <div class="chart-note" id="chart-note-friction"></div>
+      <div id="friction-interpretation-panel" class="insight-panel"></div>
+    </div>
+
       </div>
     </div>
 
@@ -462,7 +1334,27 @@
 
    Leave as null to run in local (browser-only) mode.
    ============================================================= */
-const API_ENDPOINT = 'http://localhost:5000/analyse'; // change to deployed URL when hosting remotely
+const API_ENDPOINT = 'http://localhost:5001/analyse'; // change to deployed URL when hosting remotely
+const DASHBOARD_ENDPOINT = API_ENDPOINT ? API_ENDPOINT.replace('/analyse', '/dashboard-data') : null;
+
+const ASPECT_ORDER = ['cleanliness', 'location', 'communication', 'check_in', 'value', 'amenities'];
+const ASPECT_LABELS = {
+  cleanliness: 'Cleanliness',
+  location: 'Location',
+  communication: 'Communication',
+  check_in: 'Check-in',
+  value: 'Value',
+  amenities: 'Amenities'
+};
+const LOCAL_BASELINE_NSS = {
+  cleanliness: 0.8517,
+  location: 0.8853,
+  communication: 0.8935,
+  check_in: 0.6130,
+  value: 0.8777,
+  amenities: 0.6368
+};
+const LOW_NSS_THRESHOLD = 0.2;
 
 /* ── Aspect keyword dictionary
    Mirrors task3_rulebased.ipynb — seed words + Word2Vec expansion + manual pruning ── */
@@ -518,11 +1410,136 @@ const textarea  = document.getElementById('review-input');
 const charCount = document.getElementById('char-count');
 const apiDot    = document.getElementById('api-dot');
 const apiLabel  = document.getElementById('api-label');
+let dashboardLoaded = false;
+let charts = {
+  sentiment: null,
+  topics: null,
+  improvement: null,
+  opportunity: null,
+  friction: null
+};
+let wordCloudRows = [];
+let selectedDistrict = null;
+let dashboardDataCache = null;
+let dashboardFilterHandlersBound = false;
+let dashboardPanelTabsBound = false;
+let activeDashboardPanel = 'all';
+let opportunityZoomHandlersBound = false;
+let opportunityPanState = null;
+const OPPORTUNITY_DEFAULT_BOUNDS = {
+  xMin: -1,
+  xMax: 1,
+  yMin: 0,
+  yMax: 100,
+};
+const OPPORTUNITY_LIMIT_BOUNDS = {
+  xMin: -1.6,
+  xMax: 1.6,
+  yMin: -40,
+  yMax: 140,
+};
+const AIRBNB_CHART = {
+  light: {
+    bubbleFill: 'rgba(255,90,95,0.34)',
+    bubbleBorder: 'rgba(255,90,95,0.96)',
+    positive: 'rgba(0,166,153,0.84)',
+    negative: 'rgba(255,56,92,0.84)',
+    neutralLine: 'rgba(118,118,118,0.95)',
+    neutralFill: 'rgba(118,118,118,0.24)',
+    benchmark: 'rgba(255,90,95,0.92)',
+    topic: ['#ff5a5f', '#00a699', '#7b61ff', '#4c6fff', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6'],
+    heatLow: '#ffd8e1',
+    heatMid: '#f5f4f7',
+    heatHigh: '#bdece4',
+    frictionNeg: 'rgba(255,56,92,0.84)',
+    frictionPos: 'rgba(0,166,153,0.84)',
+    wordHues: [350, 338, 200, 254],
+  },
+  dark: {
+    bubbleFill: 'rgba(255,106,123,0.42)',
+    bubbleBorder: 'rgba(255,123,140,0.98)',
+    positive: 'rgba(45,212,191,0.85)',
+    negative: 'rgba(255,107,129,0.86)',
+    neutralLine: 'rgba(196,194,205,0.9)',
+    neutralFill: 'rgba(196,194,205,0.22)',
+    benchmark: 'rgba(255,141,158,0.9)',
+    topic: ['#ff6b81', '#2dd4bf', '#a78bfa', '#60a5fa', '#fbbf24', '#f472b6', '#22d3ee', '#c084fc'],
+    heatLow: '#5b2335',
+    heatMid: '#2a2733',
+    heatHigh: '#184b44',
+    frictionNeg: 'rgba(255,107,129,0.88)',
+    frictionPos: 'rgba(45,212,191,0.88)',
+    wordHues: [350, 330, 196, 260],
+  }
+};
+
+function getChartTheme() {
+  const mode = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  return AIRBNB_CHART[mode];
+}
+
+function parseColorRgb(color) {
+  if (!color || typeof color !== 'string') return null;
+  const trimmed = color.trim();
+
+  const rgbaMatch = trimmed.match(/^rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgbaMatch) {
+    return {
+      r: Number(rgbaMatch[1]),
+      g: Number(rgbaMatch[2]),
+      b: Number(rgbaMatch[3]),
+    };
+  }
+
+  const hexMatch = trimmed.match(/^#([0-9a-f]{6})$/i);
+  if (hexMatch) {
+    const value = hexMatch[1];
+    return {
+      r: parseInt(value.slice(0, 2), 16),
+      g: parseInt(value.slice(2, 4), 16),
+      b: parseInt(value.slice(4, 6), 16),
+    };
+  }
+
+  return null;
+}
 
 if (API_ENDPOINT) {
   apiDot.className   = 'api-dot remote';
   apiLabel.textContent = 'Connected to API';
 }
+
+function applyDashboardTheme(mode) {
+  const normalized = mode === 'dark' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', normalized);
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) {
+    btn.textContent = normalized === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+}
+
+function initThemeToggle() {
+  const btn = document.getElementById('theme-toggle-btn');
+  const stored = window.localStorage.getItem('dashboardTheme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyDashboardTheme(stored || (prefersDark ? 'dark' : 'light'));
+
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyDashboardTheme(next);
+      window.localStorage.setItem('dashboardTheme', next);
+      if (dashboardDataCache) {
+        applyDashboardFilters();
+      } else {
+        setTimeout(resizeDashboardVisuals, 80);
+      }
+    });
+  }
+}
+
+initThemeToggle();
 
 textarea.addEventListener('input', () => {
   charCount.textContent = textarea.value.length + ' / 2000';
@@ -532,6 +1549,1607 @@ function loadSample() {
   textarea.value = SAMPLES[sampleIdx % SAMPLES.length];
   charCount.textContent = textarea.value.length + ' / 2000';
   sampleIdx++;
+}
+
+function destroyChart(instance) {
+  if (instance && typeof instance.destroy === 'function') instance.destroy();
+}
+
+function setChartNote(id, text) {
+  const node = document.getElementById(id);
+  if (node) node.textContent = text || '';
+}
+
+function asPct(v) {
+  return `${(Number(v || 0) * 100).toFixed(1)}%`;
+}
+
+function resizeDashboardVisuals() {
+  Object.values(charts).forEach((chart) => {
+    if (chart && typeof chart.resize === 'function') chart.resize();
+  });
+  const heatmapNode = document.getElementById('aspect-heatmap');
+  if (heatmapNode && typeof Plotly !== 'undefined' && Plotly.Plots && typeof Plotly.Plots.resize === 'function') {
+    Plotly.Plots.resize(heatmapNode);
+  }
+}
+
+function setDashboardPanel(panelName) {
+  const root = document.getElementById('tab-dashboards');
+  if (!root) return;
+
+  const normalized = panelName || 'all';
+  activeDashboardPanel = normalized;
+  const focusMode = normalized !== 'all';
+
+  const buttons = root.querySelectorAll('.dashboard-nav-btn');
+  buttons.forEach((btn) => {
+    btn.classList.toggle('active', (btn.dataset.panel || 'all') === normalized);
+  });
+
+  const panels = root.querySelectorAll('.dashboard-panel');
+  root.classList.toggle('dashboard-focus', focusMode);
+
+  let target = null;
+  panels.forEach((panel) => {
+    const show = !focusMode || panel.dataset.panel === normalized;
+    panel.classList.toggle('dashboard-panel-hidden', !show);
+    panel.classList.toggle('dashboard-panel-active', focusMode && show);
+    if (focusMode && show) target = panel;
+  });
+
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  setTimeout(resizeDashboardVisuals, 80);
+}
+
+function bindDashboardPanelTabs() {
+  if (dashboardPanelTabsBound) return;
+  const root = document.getElementById('tab-dashboards');
+  if (!root) return;
+
+  const buttons = root.querySelectorAll('.dashboard-nav-btn');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      setDashboardPanel(btn.dataset.panel || 'all');
+    });
+  });
+
+  dashboardPanelTabsBound = true;
+}
+
+function getNumberControl(id, fallback, minVal, maxVal) {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  const parsed = Number(el.value);
+  if (!Number.isFinite(parsed)) return fallback;
+  const lo = Number.isFinite(minVal) ? minVal : parsed;
+  const hi = Number.isFinite(maxVal) ? maxVal : parsed;
+  return Math.max(lo, Math.min(hi, parsed));
+}
+
+function getSelectControl(id, fallback) {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  return el.value || fallback;
+}
+
+function getDashboardFilters() {
+  return {
+    opportunity: {
+      topN: getNumberControl('filter-opportunity-topn', 18, 5, 30),
+      minSuggestions: getNumberControl('filter-opportunity-minsug', 0, 0, 10000),
+      sortBy: getSelectControl('filter-opportunity-sort', 'risk'),
+    },
+    sentiment: {
+      topN: getNumberControl('filter-sentiment-topn', 14, 5, 30),
+      minVolume: getNumberControl('filter-sentiment-minvolume', 0, 0, 100000),
+      view: getSelectControl('filter-sentiment-view', 'stacked'),
+      sortBy: getSelectControl('filter-sentiment-sort', 'negative'),
+    },
+    aspects: {
+      topN: getNumberControl('filter-aspects-topn', 18, 8, 30),
+      sortBy: getSelectControl('filter-aspects-sort', 'avg_nss'),
+    },
+    topics: {
+      topN: getNumberControl('filter-topics-topn', 12, 4, 20),
+      minCount: getNumberControl('filter-topics-mincount', 0, 0, 10000),
+    },
+    improvement: {
+      topN: getNumberControl('filter-improvement-topn', 14, 5, 30),
+      status: getSelectControl('filter-improvement-status', 'all'),
+    },
+    actionBoard: {
+      mode: getSelectControl('filter-action-mode', 'selected'),
+      topN: getNumberControl('filter-action-topn', 10, 1, 20),
+      maxCategories: getNumberControl('filter-action-cats', 4, 1, 8),
+    },
+    wordcloud: {
+      topN: getNumberControl('filter-wordcloud-topn', 45, 10, 80),
+    },
+    friction: {
+      scope: getSelectControl('filter-friction-scope', 'selected'),
+      topTerms: getNumberControl('filter-friction-terms', 5, 3, 10),
+    },
+  };
+}
+
+function getFilteredOpportunityRows(rows, options = {}) {
+  const topN = Number(options.topN || 18);
+  const minSuggestions = Number(options.minSuggestions || 0);
+  const sortBy = options.sortBy || 'risk';
+
+  return rows
+    .slice()
+    .filter(r => Number(r.total_suggestions || r.records || 0) >= minSuggestions)
+    .sort((a, b) => {
+      if (sortBy === 'volume') {
+        return Number(b.total_suggestions || b.records || 0) - Number(a.total_suggestions || a.records || 0);
+      }
+      if (sortBy === 'nss') {
+        return Number(b.avg_nss || 0) - Number(a.avg_nss || 0);
+      }
+      return (Number(b.issue_rate || 0) - Number(b.avg_nss || 0)) - (Number(a.issue_rate || 0) - Number(a.avg_nss || 0));
+    })
+    .slice(0, topN);
+}
+
+function getFilteredSentimentRows(rows, options = {}) {
+  const topN = Number(options.topN || 14);
+  const minVolume = Number(options.minVolume || 0);
+  const sortBy = options.sortBy || 'negative';
+
+  return rows
+    .slice()
+    .filter(r => Number(r.total || 0) >= minVolume)
+    .sort((a, b) => {
+      if (sortBy === 'positive') return Number(b.positive_rate || 0) - Number(a.positive_rate || 0);
+      if (sortBy === 'net') return Number(b.net_sentiment || 0) - Number(a.net_sentiment || 0);
+      if (sortBy === 'volume') return Number(b.total || 0) - Number(a.total || 0);
+      return Number(b.negative_rate || 0) - Number(a.negative_rate || 0);
+    })
+    .slice(0, topN);
+}
+
+function getFilteredAspectRows(rows, options = {}) {
+  const topN = Number(options.topN || 18);
+  const sortBy = options.sortBy || 'avg_nss';
+
+  return rows
+    .slice()
+    .sort((a, b) => Number(a[sortBy] || 0) - Number(b[sortBy] || 0))
+    .slice(0, topN);
+}
+
+function getFilteredTopicRows(rows, options = {}) {
+  const topN = Number(options.topN || 12);
+  const minCount = Number(options.minCount || 0);
+
+  return rows
+    .map(r => ({
+      topic_label: r.topic_label || (r.name ? String(r.name) : `Topic ${r.topic}`),
+      count: Number(r.count || 0),
+    }))
+    .filter(r => r.count > 0 && r.count >= minCount)
+    .slice(0, topN);
+}
+
+function getFrictionSource(rows, options = {}) {
+  const scope = options.scope || 'selected';
+  const topTerms = Number(options.topTerms || 5);
+
+  const source = scope === 'overall'
+    ? (rows.find(r => r.neighbourhood === '__overall__') || rows[0])
+    : (selectedDistrict
+      ? (rows.find(r => r.neighbourhood === selectedDistrict) || rows.find(r => r.neighbourhood === '__overall__'))
+      : (rows.find(r => r.neighbourhood === '__overall__') || rows[0]));
+
+  if (!source) return { source: null, negatives: [], positives: [], points: [] };
+
+  const negatives = (source.negative_terms || []).slice(0, topTerms).map(t => ({ word: t.word, value: -Number(t.count || 0), count: Number(t.count || 0) }));
+  const positives = (source.positive_terms || []).slice(0, topTerms).map(t => ({ word: t.word, value: Number(t.count || 0), count: Number(t.count || 0) }));
+  return { source, negatives, positives, points: [...negatives, ...positives] };
+}
+
+function renderOpportunityInterpretation(rows, benchmarkRate, options = {}) {
+  const panel = document.getElementById('opportunity-interpretation-panel');
+  if (!panel) return;
+  const ordered = getFilteredOpportunityRows(rows || [], options);
+
+  if (!ordered.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No districts match current filters. Increase Top N or lower Min suggestions.</p>';
+    return;
+  }
+
+  const benchmark = Number(benchmarkRate || 0);
+  const above = ordered.filter(r => Number(r.issue_rate || 0) > benchmark).length;
+  const highestRisk = ordered[0];
+  const biggestBubble = ordered.slice().sort((a, b) => Number(b.total_suggestions || 0) - Number(a.total_suggestions || 0))[0];
+  const selected = selectedDistrict ? ordered.find(r => r.neighbourhood === selectedDistrict) : null;
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">Each bubble is a district. Higher means more issues, farther right means better NSS, and larger bubbles mean more feedback volume.</p>
+    <ul class="insight-list">
+      <li>Visible districts: ${ordered.length}; districts above benchmark: ${above}.</li>
+      <li>Highest risk in current view: ${highestRisk.neighbourhood} (${asPct(highestRisk.issue_rate || 0)} issue rate, NSS ${Number(highestRisk.avg_nss || 0).toFixed(2)}).</li>
+      <li>Largest impact bubble: ${biggestBubble.neighbourhood} with ${Number(biggestBubble.total_suggestions || 0)} suggestions.</li>
+      <li>${selected ? `${selected.neighbourhood} is currently at ${asPct(selected.issue_rate || 0)} issue rate and NSS ${Number(selected.avg_nss || 0).toFixed(2)}.` : 'Select a district to see district-level interpretation here.'}</li>
+      <li>Action rule: prioritize big bubbles that sit high (issue-heavy) and left (lower NSS).</li>
+    </ul>
+  `;
+}
+
+function renderSentimentInterpretation(rows, options = {}) {
+  const panel = document.getElementById('sentiment-interpretation-panel');
+  if (!panel) return;
+  const ordered = getFilteredSentimentRows(rows || [], options);
+  if (!ordered.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No sentiment rows match current filters.</p>';
+    return;
+  }
+
+  const highestNegative = ordered[0];
+  const bestNet = ordered.slice().sort((a, b) => Number(b.net_sentiment || 0) - Number(a.net_sentiment || 0))[0];
+  const selected = selectedDistrict ? ordered.find(r => r.neighbourhood === selectedDistrict) : null;
+  const viewMode = options.view || 'stacked';
+  const viewLine = viewMode === 'net_volume'
+    ? 'View mode: Net sentiment + volume (bar shows net sentiment, line shows feedback volume).'
+    : 'View mode: Stacked share (bars split positive vs negative share).';
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">${viewLine}</p>
+    <ul class="insight-list">
+      <li>Highest negative pressure in this view: ${highestNegative.neighbourhood} (${asPct(highestNegative.negative_rate || 0)} negative share).</li>
+      <li>Best net sentiment in this view: ${bestNet.neighbourhood} (${Number(bestNet.net_sentiment || 0).toFixed(2)}).</li>
+      <li>${selected ? `${selected.neighbourhood}: ${asPct(selected.positive_rate || 0)} positive vs ${asPct(selected.negative_rate || 0)} negative.` : 'Select a district for direct sentiment comparison.'}</li>
+      <li>Action rule: target districts where negative share is high and feedback volume is substantial.</li>
+    </ul>
+  `;
+}
+
+function renderAspectsInterpretation(rows, options = {}) {
+  const panel = document.getElementById('aspects-interpretation-panel');
+  if (!panel) return;
+  const ordered = getFilteredAspectRows(rows || [], options);
+  if (!ordered.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No aspect rows available for the current filters.</p>';
+    return;
+  }
+
+  const aspectMeans = {};
+  ASPECT_ORDER.forEach(a => {
+    aspectMeans[a] = ordered.reduce((acc, r) => acc + Number(r[a] || 0), 0) / ordered.length;
+  });
+  const weakestAspect = ASPECT_ORDER.slice().sort((a, b) => aspectMeans[a] - aspectMeans[b])[0];
+  const strongestAspect = ASPECT_ORDER.slice().sort((a, b) => aspectMeans[b] - aspectMeans[a])[0];
+  const weakestDistrict = ordered[0];
+  const selected = selectedDistrict ? ordered.find(r => r.neighbourhood === selectedDistrict) : null;
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">Color intensity shows sentiment strength by aspect. Redder cells are weaker, greener cells are stronger.</p>
+    <ul class="insight-list">
+      <li>Weakest district in current view: ${weakestDistrict.neighbourhood} (Avg NSS ${Number(weakestDistrict.avg_nss || 0).toFixed(2)}).</li>
+      <li>Most fragile aspect across visible districts: ${ASPECT_LABELS[weakestAspect]} (${Number(aspectMeans[weakestAspect] || 0).toFixed(2)}).</li>
+      <li>Strongest aspect across visible districts: ${ASPECT_LABELS[strongestAspect]} (${Number(aspectMeans[strongestAspect] || 0).toFixed(2)}).</li>
+      <li>${selected ? `${selected.neighbourhood} average NSS is ${Number(selected.avg_nss || 0).toFixed(2)}.` : 'Select a district for district-level aspect interpretation.'}</li>
+      <li>Action rule: prioritize aspects that stay red across many districts, not one-off dips.</li>
+    </ul>
+  `;
+}
+
+function renderTopicsInterpretation(rows, options = {}) {
+  const panel = document.getElementById('topics-interpretation-panel');
+  if (!panel) return;
+  const normalized = getFilteredTopicRows(rows || [], options);
+  if (!normalized.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No topics match current filters. Lower Min count or increase Top N topics.</p>';
+    return;
+  }
+
+  const total = normalized.reduce((acc, r) => acc + Number(r.count || 0), 0);
+  const top = normalized[0];
+  const share = total > 0 ? (Number(top.count || 0) / total) * 100 : 0;
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">This chart ranks what guests talk about most in the selected topic output.</p>
+    <ul class="insight-list">
+      <li>Visible topics: ${normalized.length}; total mentions in view: ${total}.</li>
+      <li>Dominant topic: ${top.topic_label} (${top.count} mentions, ${share.toFixed(1)}% share).</li>
+      <li>When a topic dominates, it usually signals the biggest narrative influencing ratings.</li>
+      <li>Action rule: address high-frequency complaint topics first, then maintain strength topics.</li>
+    </ul>
+  `;
+}
+
+function renderFrictionInterpretation(rows, options = {}) {
+  const panel = document.getElementById('friction-interpretation-panel');
+  if (!panel) return;
+  const { source, negatives, positives } = getFrictionSource(rows || [], options);
+
+  if (!source) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No friction terms available for this view.</p>';
+    return;
+  }
+
+  const topNeg = negatives[0];
+  const topPos = positives[0];
+  const scopeLabel = options.scope === 'overall' ? 'Portfolio overall' : (source.neighbourhood || 'Selected district');
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">Left-side bars are top complaint drivers; right-side bars are strongest positive drivers.</p>
+    <ul class="insight-list">
+      <li>Scope: ${scopeLabel}; terms shown per side: ${Number(options.topTerms || 5)}.</li>
+      <li>Top complaint driver: ${topNeg ? `${topNeg.word} (${topNeg.count} mentions)` : 'n/a'}.</li>
+      <li>Top positive driver: ${topPos ? `${topPos.word} (${topPos.count} mentions)` : 'n/a'}.</li>
+      <li>Action rule: fix the leading negative driver while preserving the strongest positive differentiator.</li>
+    </ul>
+  `;
+}
+
+function renderActionBoardInterpretation(rows, options = {}) {
+  const panel = document.getElementById('action-interpretation-panel');
+  if (!panel) return;
+
+  if (!rows || !rows.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No action board records available for this view.</p>';
+    return;
+  }
+
+  const mode = options.mode || 'selected';
+  const topN = Number(options.topN || 10);
+  const maxCategories = Number(options.maxCategories || 4);
+
+  let filtered = [];
+  if (mode === 'selected' && selectedDistrict) {
+    filtered = rows.filter(r => r.neighbourhood === selectedDistrict);
+  } else {
+    filtered = rows.slice(0, topN);
+  }
+  if (!filtered.length) filtered = rows.slice(0, topN);
+
+  const primary = filtered[0];
+  const categoryCount = (primary?.categories || []).slice(0, maxCategories).length;
+  const strongestTag = (primary?.categories || [])[0]?.frequency_tag || 'n/a';
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">Cards summarize prioritized action categories by district, with frequency tags and potential impact language.</p>
+    <ul class="insight-list">
+      <li>Mode: ${mode === 'selected' ? 'Selected district focus' : `Top ${topN} districts`}.</li>
+      <li>Visible district cards: ${filtered.length}.</li>
+      <li>Lead district in this view: ${primary ? primary.neighbourhood : 'n/a'} (${primary ? asPct(primary.issue_rate || 0) : 'n/a'} issue rate).</li>
+      <li>Top card categories shown: ${categoryCount}; strongest tag: ${strongestTag}.</li>
+      <li>Action rule: execute high-frequency categories first in high-issue districts, then track if issue rate drops in next review window.</li>
+    </ul>
+  `;
+}
+
+function renderWordCloudInterpretation(rows, options = {}) {
+  const panel = document.getElementById('wordcloud-interpretation-panel');
+  if (!panel) return;
+
+  if (!rows || !rows.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No word cloud data available for this view.</p>';
+    return;
+  }
+
+  const topN = Number(options.topN || 45);
+  const district = rows.find(r => r.neighbourhood === selectedDistrict) || rows[0];
+  if (!district || !district.words || !district.words.length) {
+    panel.innerHTML = '<div class="insight-title">How To Read This Chart</div><p class="insight-text">No terms available for the selected district.</p>';
+    return;
+  }
+
+  const ranked = district.words.slice(0, topN);
+  const top = ranked[0];
+  const totalWeight = ranked.reduce((acc, w) => acc + Number(w.weight || 0), 0);
+  const topShare = totalWeight > 0 ? ((Number(top?.weight || 0) / totalWeight) * 100) : 0;
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">Larger words appear more often in issue-oriented guest comments for the selected district.</p>
+    <ul class="insight-list">
+      <li>District focus: ${district.neighbourhood}; terms shown: ${ranked.length}.</li>
+      <li>Most frequent term: ${top ? `${top.word} (${Number(top.weight || 0)} mentions)` : 'n/a'}.</li>
+      <li>Top-term share within visible words: ${topShare.toFixed(1)}%.</li>
+      <li>Use this as a signal explorer: repeated words should map to concrete action-board categories and tracked fixes.</li>
+    </ul>
+  `;
+}
+
+function applyDashboardFilters() {
+  if (!dashboardDataCache) return;
+  const chartReady = typeof Chart !== 'undefined';
+  const filters = getDashboardFilters();
+
+  safeRender('chart-note-opportunity', () => {
+    renderOpportunityInterpretation(
+      dashboardDataCache.district_overview || [],
+      dashboardDataCache.issue_rate_benchmark,
+      filters.opportunity
+    );
+  }, 'Interpretation unavailable');
+
+  safeRender('chart-note-sentiment', () => {
+    renderSentimentInterpretation(
+      dashboardDataCache.sentiment_by_neighbourhood || [],
+      filters.sentiment
+    );
+  }, 'Interpretation unavailable');
+
+  safeRender('chart-note-aspects', () => {
+    renderAspectsInterpretation(
+      dashboardDataCache.aspect_scores_by_neighbourhood || [],
+      filters.aspects
+    );
+  }, 'Interpretation unavailable');
+
+  safeRender('chart-note-topics', () => {
+    renderTopicsInterpretation(
+      dashboardDataCache.topic_distribution_lda || [],
+      filters.topics
+    );
+  }, 'Interpretation unavailable');
+
+  if (chartReady) {
+    safeRender('chart-note-opportunity', () => {
+      drawOpportunityChart(dashboardDataCache.district_overview || [], filters.opportunity);
+    }, 'Opportunity chart unavailable');
+    safeRender('chart-note-sentiment', () => {
+      drawSentimentChart(dashboardDataCache.sentiment_by_neighbourhood || [], filters.sentiment);
+    }, 'Sentiment chart unavailable');
+    safeRender('chart-note-topics', () => {
+      drawTopicChart(dashboardDataCache.topic_distribution_lda || [], filters.topics);
+    }, 'Topic chart unavailable');
+    safeRender('chart-note-improvement', () => {
+      drawImprovementChart(
+        dashboardDataCache.improvement_signals_by_neighbourhood || [],
+        dashboardDataCache.issue_rate_benchmark,
+        filters.improvement
+      );
+    }, 'Improvement chart unavailable');
+  }
+
+  safeRender('chart-note-improvement', () => {
+    renderImprovementInterpretation(
+      dashboardDataCache.improvement_signals_by_neighbourhood || [],
+      dashboardDataCache.issue_rate_benchmark,
+      filters.improvement
+    );
+  }, 'Interpretation unavailable');
+
+  safeRender('chart-note-aspects', () => {
+    drawAspectHeatmapPlotly(dashboardDataCache.aspect_scores_by_neighbourhood || [], filters.aspects);
+  }, 'Aspect heatmap unavailable');
+
+  safeRender('chart-note-issue-board', () => {
+    renderIssueSuggestionBoard(dashboardDataCache.action_oriented_board_by_neighbourhood || [], filters.actionBoard);
+  }, 'Action board unavailable');
+
+  safeRender('chart-note-issue-board', () => {
+    renderActionBoardInterpretation(
+      dashboardDataCache.action_oriented_board_by_neighbourhood || [],
+      filters.actionBoard
+    );
+  }, 'Interpretation unavailable');
+
+  safeRender('chart-note-friction', () => {
+    drawFrictionChart(dashboardDataCache.friction_terms_by_neighbourhood || [], filters.friction);
+  }, 'Friction chart unavailable');
+
+  safeRender('chart-note-wordcloud', () => {
+    renderWordCloudDistrict(selectedDistrict || (wordCloudRows[0] && wordCloudRows[0].neighbourhood), filters.wordcloud);
+  }, 'Word cloud unavailable');
+
+  safeRender('chart-note-wordcloud', () => {
+    renderWordCloudInterpretation(
+      dashboardDataCache.improvement_wordcloud_by_neighbourhood || [],
+      filters.wordcloud
+    );
+  }, 'Interpretation unavailable');
+
+  safeRender('chart-note-friction', () => {
+    renderFrictionInterpretation(
+      dashboardDataCache.friction_terms_by_neighbourhood || [],
+      filters.friction
+    );
+  }, 'Interpretation unavailable');
+}
+
+function bindDashboardFilterHandlers() {
+  if (dashboardFilterHandlersBound) return;
+  const ids = [
+    'filter-opportunity-topn', 'filter-opportunity-minsug', 'filter-opportunity-sort',
+    'filter-sentiment-topn', 'filter-sentiment-minvolume', 'filter-sentiment-view', 'filter-sentiment-sort',
+    'filter-aspects-topn', 'filter-aspects-sort',
+    'filter-topics-topn', 'filter-topics-mincount',
+    'filter-improvement-topn', 'filter-improvement-status',
+    'filter-action-mode', 'filter-action-topn', 'filter-action-cats',
+    'filter-wordcloud-topn',
+    'filter-friction-scope', 'filter-friction-terms',
+  ];
+
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('change', applyDashboardFilters);
+    if (el.tagName === 'INPUT') {
+      el.addEventListener('input', applyDashboardFilters);
+    }
+  });
+  dashboardFilterHandlersBound = true;
+}
+
+function safeRender(noteId, fn, fallbackPrefix) {
+  try {
+    fn();
+    return true;
+  } catch (err) {
+    const msg = `${fallbackPrefix || 'Chart unavailable'}: ${err.message}`;
+    if (noteId) setChartNote(noteId, msg);
+    console.error(msg, err);
+    return false;
+  }
+}
+
+function statusClass(status) {
+  if (status === 'green') return 'status-green';
+  if (status === 'red') return 'status-red';
+  return 'status-amber';
+}
+
+function toHeatColor(v) {
+  const theme = getChartTheme();
+  const value = Math.max(-1, Math.min(1, Number(v || 0)));
+  if (value >= 0) {
+    const alpha = 0.14 + (value * 0.34);
+    const rgb = parseColorRgb(theme.positive) || { r: 0, g: 166, b: 153 };
+    return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha.toFixed(3)})`;
+  }
+  const alpha = 0.14 + (Math.abs(value) * 0.34);
+  const rgb = parseColorRgb(theme.negative) || { r: 255, g: 56, b: 92 };
+  return `rgba(${rgb.r},${rgb.g},${rgb.b},${alpha.toFixed(3)})`;
+}
+
+function renderDistrictKpis(rows, benchmarkRate) {
+  const container = document.getElementById('district-kpis');
+  if (!container) return;
+  if (!rows || !rows.length) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const avgNss = rows.reduce((acc, r) => acc + Number(r.avg_nss || 0), 0) / rows.length;
+  const avgIssueRate = rows.reduce((acc, r) => acc + Number(r.issue_rate || 0), 0) / rows.length;
+  const highestRisk = rows
+    .slice()
+    .sort((a, b) => (Number(b.issue_rate || 0) - Number(b.avg_nss || 0)) - (Number(a.issue_rate || 0) - Number(a.avg_nss || 0)))[0];
+  const strongest = rows
+    .slice()
+    .sort((a, b) => Number(b.avg_nss || 0) - Number(a.avg_nss || 0))[0];
+
+  const worstIssue = rows
+    .slice()
+    .sort((a, b) => Number(b.issue_rate || 0) - Number(a.issue_rate || 0))[0];
+
+  container.innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-label">Portfolio Avg NSS</div>
+      <div class="kpi-value">${avgNss >= 0 ? '+' : ''}${avgNss.toFixed(2)}</div>
+      <div class="kpi-sub">Across visible districts</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Issue Rate</div>
+      <div class="kpi-value">${(avgIssueRate * 100).toFixed(1)}%</div>
+      <div class="kpi-sub">Bangkok benchmark: ${benchmarkRate != null ? asPct(benchmarkRate) : 'n/a'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Risk District</div>
+      <div class="kpi-value">${highestRisk ? highestRisk.neighbourhood : '-'}</div>
+      <div class="kpi-sub">High issue rate + low NSS</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Strongest District</div>
+      <div class="kpi-value">${strongest ? strongest.neighbourhood : '-'}</div>
+      <div class="kpi-sub">Highest average NSS</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Issue Pressure</div>
+      <div class="kpi-value">${worstIssue ? worstIssue.neighbourhood : '-'}</div>
+      <div class="kpi-sub">${worstIssue ? asPct(worstIssue.issue_rate) : 'n/a'} issue rate</div>
+    </div>
+  `;
+}
+
+function renderBenchmarkPill(benchmarkRate, signalRows) {
+  const pill = document.getElementById('benchmark-status-pill');
+  if (!pill) return;
+  const benchmarkTxt = benchmarkRate != null ? asPct(benchmarkRate) : 'n/a';
+
+  if (!signalRows || !signalRows.length) {
+    pill.className = 'status-pill status-amber';
+    pill.textContent = `Benchmark ${benchmarkTxt}`;
+    return;
+  }
+
+  const selected = selectedDistrict
+    ? signalRows.find(r => r.neighbourhood === selectedDistrict)
+    : signalRows[0];
+
+  const status = selected?.benchmark_status || 'amber';
+  const issueTxt = selected ? asPct(selected.issue_rate) : 'n/a';
+  const labelDistrict = selected?.neighbourhood || 'Portfolio';
+  pill.className = `status-pill ${statusClass(status)}`;
+  pill.textContent = `${labelDistrict}: ${issueTxt} vs benchmark ${benchmarkTxt}`;
+}
+
+function renderExecutiveSummary(data) {
+  const textNode = document.querySelector('#executive-summary-box .exec-summary-text');
+  const focusNode = document.getElementById('district-focus-label');
+  if (!textNode || !focusNode) return;
+
+  const districtMap = data?.executive_summary_by_neighbourhood || {};
+  if (selectedDistrict && districtMap[selectedDistrict]) {
+    textNode.textContent = districtMap[selectedDistrict];
+    focusNode.textContent = `Focused district: ${selectedDistrict}`;
+    return;
+  }
+
+  textNode.textContent = data?.executive_summary || 'District insights are loading.';
+  focusNode.textContent = selectedDistrict ? `Focused district: ${selectedDistrict}` : 'Focused district: Portfolio overview';
+}
+
+function setSelectedDistrict(name, opts = {}) {
+  const { syncControl = true } = opts;
+  selectedDistrict = name || null;
+
+  if (!dashboardDataCache) return;
+
+  renderExecutiveSummary(dashboardDataCache);
+  renderBenchmarkPill(
+    dashboardDataCache.issue_rate_benchmark,
+    dashboardDataCache.improvement_signals_by_neighbourhood || []
+  );
+
+  if (syncControl) {
+    const select = document.getElementById('wordcloud-district-select');
+    if (select && selectedDistrict && [...select.options].some(o => o.value === selectedDistrict)) {
+      select.value = selectedDistrict;
+    }
+  }
+
+  applyDashboardFilters();
+}
+
+function zoomOpportunityChart(factor) {
+  const chart = charts.opportunity;
+  if (!chart || !chart.options || !chart.options.scales) return;
+
+  const xScale = chart.options.scales.x || {};
+  const yScale = chart.options.scales.y || {};
+
+  const xMin = Number.isFinite(xScale.min) ? xScale.min : OPPORTUNITY_DEFAULT_BOUNDS.xMin;
+  const xMax = Number.isFinite(xScale.max) ? xScale.max : OPPORTUNITY_DEFAULT_BOUNDS.xMax;
+  const yMin = Number.isFinite(yScale.min) ? yScale.min : OPPORTUNITY_DEFAULT_BOUNDS.yMin;
+  const yMax = Number.isFinite(yScale.max) ? yScale.max : OPPORTUNITY_DEFAULT_BOUNDS.yMax;
+
+  const xCenter = (xMin + xMax) / 2;
+  const yCenter = (yMin + yMax) / 2;
+  const minXRange = 0.2;
+  const minYRange = 12;
+
+  let newXHalfRange = ((xMax - xMin) * factor) / 2;
+  let newYHalfRange = ((yMax - yMin) * factor) / 2;
+
+  newXHalfRange = Math.max(minXRange / 2, newXHalfRange);
+  newYHalfRange = Math.max(minYRange / 2, newYHalfRange);
+
+  let newXMin = xCenter - newXHalfRange;
+  let newXMax = xCenter + newXHalfRange;
+  let newYMin = yCenter - newYHalfRange;
+  let newYMax = yCenter + newYHalfRange;
+
+  if (newXMin < OPPORTUNITY_LIMIT_BOUNDS.xMin) {
+    const shift = OPPORTUNITY_LIMIT_BOUNDS.xMin - newXMin;
+    newXMin += shift;
+    newXMax += shift;
+  }
+  if (newXMax > OPPORTUNITY_LIMIT_BOUNDS.xMax) {
+    const shift = newXMax - OPPORTUNITY_LIMIT_BOUNDS.xMax;
+    newXMin -= shift;
+    newXMax -= shift;
+  }
+
+  if (newYMin < OPPORTUNITY_LIMIT_BOUNDS.yMin) {
+    const shift = OPPORTUNITY_LIMIT_BOUNDS.yMin - newYMin;
+    newYMin += shift;
+    newYMax += shift;
+  }
+  if (newYMax > OPPORTUNITY_LIMIT_BOUNDS.yMax) {
+    const shift = newYMax - OPPORTUNITY_LIMIT_BOUNDS.yMax;
+    newYMin -= shift;
+    newYMax -= shift;
+  }
+
+  xScale.min = Math.max(OPPORTUNITY_LIMIT_BOUNDS.xMin, Number(newXMin.toFixed(3)));
+  xScale.max = Math.min(OPPORTUNITY_LIMIT_BOUNDS.xMax, Number(newXMax.toFixed(3)));
+  yScale.min = Math.max(OPPORTUNITY_LIMIT_BOUNDS.yMin, Number(newYMin.toFixed(2)));
+  yScale.max = Math.min(OPPORTUNITY_LIMIT_BOUNDS.yMax, Number(newYMax.toFixed(2)));
+  chart.update('none');
+}
+
+function resetOpportunityZoom() {
+  const chart = charts.opportunity;
+  if (!chart || !chart.options || !chart.options.scales) return;
+  chart.options.scales.x.min = OPPORTUNITY_DEFAULT_BOUNDS.xMin;
+  chart.options.scales.x.max = OPPORTUNITY_DEFAULT_BOUNDS.xMax;
+  chart.options.scales.y.min = OPPORTUNITY_DEFAULT_BOUNDS.yMin;
+  chart.options.scales.y.max = OPPORTUNITY_DEFAULT_BOUNDS.yMax;
+  chart.update('none');
+}
+
+function clampOpportunityWindow(minVal, maxVal, lowerBound, upperBound) {
+  const range = maxVal - minVal;
+  const limitRange = upperBound - lowerBound;
+  if (range >= limitRange) {
+    return { min: lowerBound, max: upperBound };
+  }
+
+  let nextMin = minVal;
+  let nextMax = maxVal;
+  if (nextMin < lowerBound) {
+    const shift = lowerBound - nextMin;
+    nextMin += shift;
+    nextMax += shift;
+  }
+  if (nextMax > upperBound) {
+    const shift = nextMax - upperBound;
+    nextMin -= shift;
+    nextMax -= shift;
+  }
+  return { min: nextMin, max: nextMax };
+}
+
+function panOpportunityChart(startState, pointerX, pointerY) {
+  const chart = charts.opportunity;
+  if (!chart || !chart.options || !chart.options.scales || !chart.chartArea) return;
+
+  const chartArea = chart.chartArea;
+  const xPixels = Math.max(1, chartArea.right - chartArea.left);
+  const yPixels = Math.max(1, chartArea.bottom - chartArea.top);
+  const xRange = startState.xMax - startState.xMin;
+  const yRange = startState.yMax - startState.yMin;
+
+  const deltaX = pointerX - startState.pointerX;
+  const deltaY = pointerY - startState.pointerY;
+
+  const rawXMin = startState.xMin - (deltaX / xPixels) * xRange;
+  const rawXMax = startState.xMax - (deltaX / xPixels) * xRange;
+  const rawYMin = startState.yMin + (deltaY / yPixels) * yRange;
+  const rawYMax = startState.yMax + (deltaY / yPixels) * yRange;
+
+  const xWindow = clampOpportunityWindow(rawXMin, rawXMax, OPPORTUNITY_LIMIT_BOUNDS.xMin, OPPORTUNITY_LIMIT_BOUNDS.xMax);
+  const yWindow = clampOpportunityWindow(rawYMin, rawYMax, OPPORTUNITY_LIMIT_BOUNDS.yMin, OPPORTUNITY_LIMIT_BOUNDS.yMax);
+
+  chart.options.scales.x.min = Number(xWindow.min.toFixed(3));
+  chart.options.scales.x.max = Number(xWindow.max.toFixed(3));
+  chart.options.scales.y.min = Number(yWindow.min.toFixed(2));
+  chart.options.scales.y.max = Number(yWindow.max.toFixed(2));
+  chart.update('none');
+}
+
+function bindOpportunityZoomControls() {
+  if (opportunityZoomHandlersBound) return;
+
+  const btnIn = document.getElementById('opportunity-zoom-in');
+  const btnOut = document.getElementById('opportunity-zoom-out');
+  const btnReset = document.getElementById('opportunity-zoom-reset');
+  const canvas = document.getElementById('chart-opportunity-matrix');
+
+  if (btnIn) btnIn.addEventListener('click', () => zoomOpportunityChart(0.78));
+  if (btnOut) btnOut.addEventListener('click', () => zoomOpportunityChart(1.28));
+  if (btnReset) btnReset.addEventListener('click', resetOpportunityZoom);
+
+  if (canvas) {
+    canvas.style.cursor = 'grab';
+
+    canvas.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      if (event.deltaY < 0) {
+        zoomOpportunityChart(0.88);
+      } else {
+        zoomOpportunityChart(1.15);
+      }
+    }, { passive: false });
+
+    const startPan = (clientX, clientY) => {
+      const chart = charts.opportunity;
+      if (!chart || !chart.options || !chart.options.scales) return;
+
+      const xScale = chart.options.scales.x || {};
+      const yScale = chart.options.scales.y || {};
+      opportunityPanState = {
+        pointerX: clientX,
+        pointerY: clientY,
+        xMin: Number.isFinite(xScale.min) ? xScale.min : OPPORTUNITY_DEFAULT_BOUNDS.xMin,
+        xMax: Number.isFinite(xScale.max) ? xScale.max : OPPORTUNITY_DEFAULT_BOUNDS.xMax,
+        yMin: Number.isFinite(yScale.min) ? yScale.min : OPPORTUNITY_DEFAULT_BOUNDS.yMin,
+        yMax: Number.isFinite(yScale.max) ? yScale.max : OPPORTUNITY_DEFAULT_BOUNDS.yMax,
+      };
+      canvas.style.cursor = 'grabbing';
+    };
+
+    const movePan = (clientX, clientY) => {
+      if (!opportunityPanState) return;
+      panOpportunityChart(opportunityPanState, clientX, clientY);
+    };
+
+    const endPan = () => {
+      if (!opportunityPanState) return;
+      opportunityPanState = null;
+      canvas.style.cursor = 'grab';
+    };
+
+    canvas.addEventListener('mousedown', (event) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      startPan(event.clientX, event.clientY);
+    });
+
+    window.addEventListener('mousemove', (event) => {
+      movePan(event.clientX, event.clientY);
+    });
+
+    window.addEventListener('mouseup', () => {
+      endPan();
+    });
+
+    canvas.addEventListener('touchstart', (event) => {
+      if (!event.touches || !event.touches.length) return;
+      const touch = event.touches[0];
+      startPan(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (event) => {
+      if (!opportunityPanState || !event.touches || !event.touches.length) return;
+      const touch = event.touches[0];
+      panOpportunityChart(opportunityPanState, touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      endPan();
+    });
+  }
+
+  opportunityZoomHandlersBound = true;
+}
+
+function drawOpportunityChart(rows, options = {}) {
+  const ctx = document.getElementById('chart-opportunity-matrix');
+  if (!ctx || !rows || !rows.length) return;
+  const theme = getChartTheme();
+
+  const ordered = getFilteredOpportunityRows(rows, options);
+  const data = ordered.map(r => ({
+    x: Number(r.avg_nss || 0),
+    y: Number(r.issue_rate || 0) * 100,
+    r: Math.max(4, Math.min(18, Math.sqrt(Number(r.total_suggestions || r.records || 1)) / 2)),
+    neighbourhood: r.neighbourhood,
+    total: Number(r.total_suggestions || 0),
+  }));
+
+  destroyChart(charts.opportunity);
+  charts.opportunity = new Chart(ctx, {
+    type: 'bubble',
+    data: {
+      datasets: [{
+        label: 'District opportunity points',
+        data,
+        backgroundColor: theme.bubbleFill,
+        borderColor: theme.bubbleBorder,
+        borderWidth: 1.2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          min: OPPORTUNITY_DEFAULT_BOUNDS.xMin,
+          max: OPPORTUNITY_DEFAULT_BOUNDS.xMax,
+          title: { display: true, text: 'Average NSS (higher is better)' }
+        },
+        y: {
+          min: OPPORTUNITY_DEFAULT_BOUNDS.yMin,
+          max: OPPORTUNITY_DEFAULT_BOUNDS.yMax,
+          title: { display: true, text: 'Issue rate % (higher is riskier)' }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label(ctx) {
+              const p = ctx.raw || {};
+              return `${p.neighbourhood}: NSS ${p.x >= 0 ? '+' : ''}${Number(p.x || 0).toFixed(2)}, Issue ${Number(p.y || 0).toFixed(1)}%, Suggestions ${p.total || 0}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function drawSentimentChart(rows, options = {}) {
+  const ctx = document.getElementById('chart-sentiment-district');
+  if (!ctx || !rows || !rows.length) return;
+  const theme = getChartTheme();
+
+  const ordered = getFilteredSentimentRows(rows, options);
+  const viewMode = options.view || 'stacked';
+
+  if (!ordered.length) {
+    destroyChart(charts.sentiment);
+    const context = ctx.getContext('2d');
+    if (context) context.clearRect(0, 0, ctx.width, ctx.height);
+    return;
+  }
+
+  if (viewMode === 'net_volume') {
+    const netValues = ordered.map(r => Number(r.net_sentiment || 0) * 100);
+
+    destroyChart(charts.sentiment);
+    charts.sentiment = new Chart(ctx, {
+      data: {
+        labels: ordered.map(r => r.neighbourhood),
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Net sentiment',
+            data: netValues,
+            backgroundColor: netValues.map(v => v >= 0 ? theme.positive : theme.negative),
+            yAxisID: 'y',
+          },
+          {
+            type: 'line',
+            label: 'Review volume',
+            data: ordered.map(r => Number(r.total || 0)),
+            borderColor: theme.neutralLine,
+            backgroundColor: theme.neutralFill,
+            tension: 0.28,
+            yAxisID: 'y1',
+            pointRadius: 2.5,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            position: 'left',
+            min: -100,
+            max: 100,
+            title: { display: true, text: 'Net sentiment (%)' }
+          },
+          y1: {
+            position: 'right',
+            beginAtZero: true,
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: 'Review volume' }
+          }
+        },
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              afterBody(items) {
+                const idx = items?.[0]?.dataIndex ?? 0;
+                const row = ordered[idx] || {};
+                return `Positive: ${asPct(row.positive_rate || 0)} | Negative: ${asPct(row.negative_rate || 0)}`;
+              }
+            }
+          }
+        }
+      }
+    });
+    return;
+  }
+
+  destroyChart(charts.sentiment);
+  charts.sentiment = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ordered.map(r => r.neighbourhood),
+      datasets: [
+        {
+          label: 'Positive rate',
+          data: ordered.map(r => Number(r.positive_rate || 0) * 100),
+          backgroundColor: theme.positive,
+        },
+        {
+          label: 'Negative rate',
+          data: ordered.map(r => Number(r.negative_rate || 0) * 100),
+          backgroundColor: theme.negative,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        x: {
+          stacked: true,
+          max: 100,
+          title: { display: true, text: 'Share of sentiment volume (%)' }
+        },
+        y: { stacked: true }
+      },
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            afterBody(items) {
+              const idx = items?.[0]?.dataIndex ?? 0;
+              const row = ordered[idx] || {};
+              return `Volume: ${row.total || 0} | Net sentiment: ${row.net_sentiment >= 0 ? '+' : ''}${Number(row.net_sentiment || 0).toFixed(2)}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderAspectHeatmapTable(rows, options = {}) {
+  const node = document.getElementById('aspect-heatmap');
+  if (!node) return;
+  if (!rows || !rows.length) {
+    node.innerHTML = '<div class="chart-loading">No aspect heatmap data available.</div>';
+    return;
+  }
+
+  const ordered = getFilteredAspectRows(rows, options);
+
+  const header = ['District', 'Clean', 'Location', 'Comm', 'Check-in', 'Value', 'Amenities', 'Avg NSS', 'Records'];
+  const html = `
+    <table class="heatmap-table">
+      <thead>
+        <tr>${header.map(h => `<th>${h}</th>`).join('')}</tr>
+      </thead>
+      <tbody>
+        ${ordered.map(r => {
+          const cells = ASPECT_ORDER.map(a => {
+            const v = Number(r[a] || 0);
+            return `<td class="heat-cell" style="background:${toHeatColor(v)}">${v >= 0 ? '+' : ''}${v.toFixed(2)}</td>`;
+          }).join('');
+          const avg = Number(r.avg_nss || 0);
+          return `<tr>
+            <td>${r.neighbourhood}</td>
+            ${cells}
+            <td class="heat-cell" style="background:${toHeatColor(avg)}">${avg >= 0 ? '+' : ''}${avg.toFixed(2)}</td>
+            <td>${Number(r.records || 0)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+  node.innerHTML = html;
+}
+
+function drawAspectHeatmapPlotly(rows, options = {}) {
+  const node = document.getElementById('aspect-heatmap');
+  if (!node) return;
+  if (!rows || !rows.length) {
+    node.innerHTML = '<div class="chart-loading">No aspect heatmap data available.</div>';
+    return;
+  }
+  const theme = getChartTheme();
+
+  if (typeof Plotly === 'undefined') {
+    renderAspectHeatmapTable(rows, options);
+    return;
+  }
+
+  const ordered = getFilteredAspectRows(rows, options);
+  const y = ordered.map(r => r.neighbourhood);
+  const x = ['Cleanliness', 'Location', 'Communication', 'Check-in', 'Value', 'Amenities', 'Avg NSS'];
+  const z = ordered.map(r => [
+    Number(r.cleanliness || 0),
+    Number(r.location || 0),
+    Number(r.communication || 0),
+    Number(r.check_in || 0),
+    Number(r.value || 0),
+    Number(r.amenities || 0),
+    Number(r.avg_nss || 0),
+  ]);
+
+  const text = ordered.map(r => [
+    `District: ${r.neighbourhood}<br>Cleanliness: ${Number(r.cleanliness || 0).toFixed(2)}`,
+    `District: ${r.neighbourhood}<br>Location: ${Number(r.location || 0).toFixed(2)}`,
+    `District: ${r.neighbourhood}<br>Communication: ${Number(r.communication || 0).toFixed(2)}`,
+    `District: ${r.neighbourhood}<br>Check-in: ${Number(r.check_in || 0).toFixed(2)}`,
+    `District: ${r.neighbourhood}<br>Value: ${Number(r.value || 0).toFixed(2)}`,
+    `District: ${r.neighbourhood}<br>Amenities: ${Number(r.amenities || 0).toFixed(2)}`,
+    `District: ${r.neighbourhood}<br>Average NSS: ${Number(r.avg_nss || 0).toFixed(2)}<br>Records: ${Number(r.records || 0)}`,
+  ]);
+
+  const trace = {
+    z,
+    x,
+    y,
+    type: 'heatmap',
+    zmin: -1,
+    zmax: 1,
+    colorscale: [
+      [0.0, theme.heatLow],
+      [0.5, theme.heatMid],
+      [1.0, theme.heatHigh]
+    ],
+    hovertemplate: '%{text}<extra></extra>',
+    text,
+  };
+
+  const layout = {
+    margin: { l: 95, r: 18, t: 12, b: 35 },
+    paper_bgcolor: 'transparent',
+    plot_bgcolor: 'transparent',
+    font: { size: 11 },
+    yaxis: { automargin: true },
+    xaxis: { automargin: true },
+  };
+
+  // Plotly requires a measurable container. Force explicit dimensions before render.
+  node.style.width = '100%';
+  node.style.height = '360px';
+
+  try {
+    Plotly.react(node, [trace], layout, { displayModeBar: false, responsive: true });
+    node.removeAllListeners?.('plotly_click');
+    node.on('plotly_click', (evt) => {
+      const district = evt?.points?.[0]?.y;
+      if (district) setSelectedDistrict(district);
+    });
+  } catch (err) {
+    // Gracefully fall back to HTML table if Plotly fails for any browser/runtime reason.
+    renderAspectHeatmapTable(rows, options);
+  }
+}
+
+function drawTopicChart(rows, options = {}) {
+  const ctx = document.getElementById('chart-topic-bangkok');
+  if (!ctx || !rows || !rows.length) return;
+  const theme = getChartTheme();
+
+  const normalized = getFilteredTopicRows(rows, options);
+
+  destroyChart(charts.topics);
+  charts.topics = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: normalized.map(r => r.topic_label),
+      datasets: [{
+        label: 'Topic count',
+        data: normalized.map(r => r.count),
+        backgroundColor: normalized.map((_, idx) => theme.topic[idx % theme.topic.length])
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+function getFilteredImprovementRows(rows, options = {}) {
+  const topN = Number(options.topN || 14);
+  const status = options.status || 'all';
+
+  return rows
+    .slice()
+    .filter(r => status === 'all' || (r.benchmark_status || 'amber') === status)
+    .sort((a, b) => Number(b.issue_rate || 0) - Number(a.issue_rate || 0))
+    .slice(0, topN);
+}
+
+function renderImprovementInterpretation(rows, benchmarkRate, options = {}) {
+  const panel = document.getElementById('improvement-interpretation-panel');
+  if (!panel) return;
+
+  const ordered = getFilteredImprovementRows(rows || [], options);
+  const benchmark = Number(benchmarkRate || 0);
+  const benchmarkPct = (benchmark * 100).toFixed(1);
+  const status = options.status || 'all';
+
+  if (!ordered.length) {
+    panel.innerHTML = `
+      <div class="insight-title">How To Read This Chart</div>
+      <p class="insight-text">No districts match the current filters. Try setting Status to All or increasing Top N.</p>
+    `;
+    return;
+  }
+
+  const above = ordered.filter(r => Number(r.issue_rate || 0) > benchmark);
+  const redCount = ordered.filter(r => (r.benchmark_status || 'amber') === 'red').length;
+  const topRisk = ordered[0];
+  const topVolume = ordered.slice().sort((a, b) => Number(b.total_suggestions || 0) - Number(a.total_suggestions || 0))[0];
+  const selectedRow = selectedDistrict ? ordered.find(r => r.neighbourhood === selectedDistrict) : null;
+
+  const topRiskPct = (Number(topRisk.issue_rate || 0) * 100).toFixed(1);
+  const topVolumePct = (Number(topVolume.issue_rate || 0) * 100).toFixed(1);
+
+  let selectedText = 'Select a district from the heatmap or controls to see district-specific interpretation.';
+  if (selectedRow) {
+    const selectedIssuePct = Number(selectedRow.issue_rate || 0) * 100;
+    const delta = selectedIssuePct - (benchmark * 100);
+    const dir = delta >= 0 ? 'above' : 'below';
+    selectedText = `${selectedRow.neighbourhood} is ${Math.abs(delta).toFixed(1)} percentage points ${dir} benchmark (${selectedIssuePct.toFixed(1)}% vs ${benchmarkPct}%).`;
+  }
+
+  let priorityText = `Primary action zone: ${topRisk.neighbourhood} has the highest issue rate in this view at ${topRiskPct}%.`;
+  if (Number(topVolume.issue_rate || 0) > benchmark && Number(topVolume.total_suggestions || 0) > 0) {
+    priorityText = `Highest impact opportunity: ${topVolume.neighbourhood} combines high feedback volume (${Number(topVolume.total_suggestions || 0)} suggestions) and ${topVolumePct}% issue rate.`;
+  }
+  if (!above.length) {
+    priorityText = 'No district in this filtered view is above benchmark. Focus on maintaining consistency and monitoring for trend changes.';
+  }
+
+  panel.innerHTML = `
+    <div class="insight-title">How To Read This Chart</div>
+    <p class="insight-text">Bars show issue rate by district. The dashed line (${benchmarkPct}%) is the Bangkok benchmark. The gray line shows suggestion volume (right axis).</p>
+    <ul class="insight-list">
+      <li>Visible districts: ${ordered.length} (${status === 'all' ? 'all statuses' : `status = ${status}`}).</li>
+      <li>Above benchmark: ${above.length} district(s); red alert districts in view: ${redCount}.</li>
+      <li>${priorityText}</li>
+      <li>${selectedText}</li>
+      <li>Interpretation rule: prioritize districts where bars are above the dashed line and the gray line is also high.</li>
+    </ul>
+  `;
+}
+
+function drawImprovementChart(rows, benchmarkRate, options = {}) {
+  const ctx = document.getElementById('chart-improvement-area');
+  if (!ctx || !rows || !rows.length) return;
+  const theme = getChartTheme();
+
+  const ordered = getFilteredImprovementRows(rows, options);
+  if (!ordered.length) {
+    destroyChart(charts.improvement);
+    const context = ctx.getContext('2d');
+    if (context) context.clearRect(0, 0, ctx.width, ctx.height);
+    return;
+  }
+
+  const barColors = ordered.map(r => {
+    const status = r.benchmark_status || 'amber';
+    if (status === 'green') return theme.positive;
+    if (status === 'red') return theme.negative;
+    return theme.bubbleFill;
+  });
+
+  destroyChart(charts.improvement);
+  charts.improvement = new Chart(ctx, {
+    data: {
+      labels: ordered.map(r => r.neighbourhood),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Issue rate %',
+          data: ordered.map(r => Number(r.issue_rate || 0) * 100),
+          backgroundColor: barColors,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Total suggestions',
+          data: ordered.map(r => Number(r.total_suggestions || 0)),
+          borderColor: theme.neutralLine,
+          backgroundColor: theme.neutralFill,
+          tension: 0.28,
+          yAxisID: 'y1',
+          pointRadius: 2.5,
+        },
+        {
+          type: 'line',
+          label: 'Bangkok benchmark',
+          data: ordered.map(() => Number(benchmarkRate || 0) * 100),
+          borderColor: theme.benchmark,
+          borderDash: [6, 5],
+          borderWidth: 1.4,
+          pointRadius: 0,
+          yAxisID: 'y',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          position: 'left',
+          beginAtZero: true,
+          max: 100,
+          title: { display: true, text: 'Issue rate %' }
+        },
+        y1: {
+          position: 'right',
+          beginAtZero: true,
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: 'Suggestion count' }
+        }
+      },
+      plugins: {
+        legend: { position: 'bottom' },
+      }
+    }
+  });
+}
+
+function renderIssueSuggestionBoard(rows, options = {}) {
+  const node = document.getElementById('issue-suggestion-board');
+  if (!node) return;
+  if (!rows || !rows.length) {
+    node.innerHTML = '<div class="chart-loading">No action-oriented categories available.</div>';
+    return;
+  }
+
+  const mode = options.mode || 'selected';
+  const topN = Number(options.topN || 10);
+  const maxCategories = Number(options.maxCategories || 4);
+
+  let filtered = [];
+  if (mode === 'selected' && selectedDistrict) {
+    filtered = rows.filter(r => r.neighbourhood === selectedDistrict);
+  } else {
+    filtered = rows.slice(0, topN);
+  }
+  if (!filtered.length) filtered = rows.slice(0, topN);
+
+  node.innerHTML = filtered.map(r => `
+    <div class="issue-card">
+      <div class="issue-head">
+        <div class="issue-district">${r.neighbourhood}</div>
+        <span class="issue-tag">${r.dominant_issue} | ${asPct(r.issue_rate || 0)}</span>
+      </div>
+      <ul class="action-list">
+        ${(r.categories || []).slice(0, maxCategories).map(c => `
+          <li>
+            <strong>${c.frequency_tag}</strong>
+            <div class="action-impact">Potential impact: ${c.potential_impact_text}</div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function renderWordCloudDistrict(name, options = {}) {
+  const cloud = document.getElementById('wordcloud-canvas');
+  if (!cloud) return;
+  const theme = getChartTheme();
+
+  const topN = Number(options.topN || 45);
+
+  const district = wordCloudRows.find(r => r.neighbourhood === name) || wordCloudRows[0];
+  if (!district || !district.words || !district.words.length) {
+    cloud.innerHTML = '<div class="chart-loading">No word-cloud terms available for this district.</div>';
+    return;
+  }
+
+  const rankedWords = district.words.slice(0, topN);
+  const maxWeight = Math.max(...rankedWords.map(w => Number(w.weight || 1)), 1);
+  cloud.innerHTML = rankedWords.map((item, idx) => {
+    const weight = Number(item.weight || 1);
+    const size = 12 + (weight / maxWeight) * 24;
+    const hue = theme.wordHues[idx % theme.wordHues.length];
+    const sat = 58 + ((idx * 11) % 18);
+    const light = document.documentElement.getAttribute('data-theme') === 'dark' ? 72 : 41;
+    return `<span class="word-tag" style="font-size:${size.toFixed(1)}px;color:hsl(${hue} ${sat}% ${light}%);">${item.word}</span>`;
+  }).join('');
+}
+
+function initWordCloudExplorer(rows) {
+  const select = document.getElementById('wordcloud-district-select');
+  const cloud = document.getElementById('wordcloud-canvas');
+  if (!select || !cloud) return;
+
+  wordCloudRows = Array.isArray(rows) ? rows : [];
+  if (!wordCloudRows.length) {
+    select.innerHTML = '';
+    cloud.innerHTML = '<div class="chart-loading">No word cloud data returned from the API.</div>';
+    return;
+  }
+
+  select.innerHTML = wordCloudRows
+    .map(r => `<option value="${r.neighbourhood}">${r.neighbourhood}</option>`)
+    .join('');
+
+  select.onchange = () => setSelectedDistrict(select.value, { syncControl: false });
+  const preferred = selectedDistrict && [...select.options].some(o => o.value === selectedDistrict)
+    ? selectedDistrict
+    : (wordCloudRows[0] && wordCloudRows[0].neighbourhood);
+  if (preferred) select.value = preferred;
+  renderWordCloudDistrict(preferred, getDashboardFilters().wordcloud);
+}
+
+function drawFrictionChart(rows, options = {}) {
+  const ctx = document.getElementById('chart-friction-points');
+  if (typeof Chart === 'undefined') return;
+  if (!ctx || !rows || !rows.length) return;
+  const theme = getChartTheme();
+
+  const { source, negatives, positives, points } = getFrictionSource(rows, options);
+
+  if (!source) return;
+
+  destroyChart(charts.friction);
+  charts.friction = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: points.map(p => p.word),
+      datasets: [{
+        label: 'Term influence',
+        data: points.map(p => p.value),
+        backgroundColor: points.map(p => p.value < 0 ? theme.frictionNeg : theme.frictionPos),
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        x: {
+          title: { display: true, text: 'Negative drivers  < 0  |  Positive drivers > 0' },
+          grid: { color: 'rgba(150,150,150,0.2)' }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+async function loadDashboardCharts() {
+  if (dashboardLoaded) {
+    bindDashboardPanelTabs();
+    bindOpportunityZoomControls();
+    setDashboardPanel(activeDashboardPanel || 'all');
+    return;
+  }
+
+  const chartReady = typeof Chart !== 'undefined';
+
+  if (!DASHBOARD_ENDPOINT) {
+    const msg = 'District dashboards require API mode.';
+    setChartNote('chart-note-opportunity', msg);
+    setChartNote('chart-note-sentiment', msg);
+    setChartNote('chart-note-aspects', msg);
+    setChartNote('chart-note-topics', msg);
+    setChartNote('chart-note-improvement', msg);
+    setChartNote('chart-note-issue-board', msg);
+    setChartNote('chart-note-wordcloud', msg);
+    setChartNote('chart-note-friction', msg);
+    return;
+  }
+
+  try {
+    const response = await fetch(DASHBOARD_ENDPOINT);
+    if (!response.ok) throw new Error('Dashboard data API returned ' + response.status);
+
+    const data = await response.json();
+    dashboardDataCache = data;
+    const filters = getDashboardFilters();
+
+    bindDashboardFilterHandlers();
+    bindDashboardPanelTabs();
+    bindOpportunityZoomControls();
+    setDashboardPanel(activeDashboardPanel || 'all');
+
+    safeRender('chart-note-opportunity', () => {
+      renderDistrictKpis(data.district_overview || [], data.issue_rate_benchmark);
+    }, 'KPI render unavailable');
+
+    const renderState = {
+      opportunity: false,
+      sentiment: false,
+      topic: false,
+      improvement: false,
+      friction: false,
+      aspects: false,
+    };
+
+    if (chartReady) {
+      renderState.opportunity = safeRender('chart-note-opportunity', () => {
+        drawOpportunityChart(data.district_overview || [], filters.opportunity);
+      }, 'Opportunity chart unavailable');
+      renderState.sentiment = safeRender('chart-note-sentiment', () => {
+        drawSentimentChart(data.sentiment_by_neighbourhood || [], filters.sentiment);
+      }, 'Sentiment chart unavailable');
+      renderState.topic = safeRender('chart-note-topics', () => {
+        drawTopicChart(data.topic_distribution_lda || [], filters.topics);
+      }, 'Topic chart unavailable');
+      renderState.improvement = safeRender('chart-note-improvement', () => {
+        drawImprovementChart(data.improvement_signals_by_neighbourhood || [], data.issue_rate_benchmark, filters.improvement);
+      }, 'Improvement chart unavailable');
+      renderState.friction = safeRender('chart-note-friction', () => {
+        drawFrictionChart(data.friction_terms_by_neighbourhood || [], filters.friction);
+      }, 'Friction chart unavailable');
+    }
+
+    renderState.aspects = safeRender('chart-note-aspects', () => {
+      drawAspectHeatmapPlotly(data.aspect_scores_by_neighbourhood || [], filters.aspects);
+    }, 'Aspect heatmap unavailable');
+
+    safeRender('chart-note-issue-board', () => {
+      renderIssueSuggestionBoard(data.action_oriented_board_by_neighbourhood || [], filters.actionBoard);
+    }, 'Action board unavailable');
+
+    selectedDistrict = data.selected_neighbourhood_default || (data.district_overview?.[0]?.neighbourhood || null);
+    safeRender('chart-note-wordcloud', () => {
+      initWordCloudExplorer(data.improvement_wordcloud_by_neighbourhood || []);
+      setSelectedDistrict(selectedDistrict);
+    }, 'Word cloud unavailable');
+    safeRender('chart-note-opportunity', () => {
+      renderExecutiveSummary(data);
+      renderBenchmarkPill(data.issue_rate_benchmark, data.improvement_signals_by_neighbourhood || []);
+    }, 'Summary render unavailable');
+
+    if (renderState.opportunity) setChartNote('chart-note-opportunity', chartReady
+      ? 'Combines average NSS with district issue-rate and volume into one prioritization view. Use zoom or drag the chart to pan; zoom-out can extend below 0% for context.'
+      : 'Chart unavailable (CDN blocked), but district KPIs below still summarize opportunity risk.');
+    if (renderState.sentiment || !chartReady) setChartNote('chart-note-sentiment', chartReady
+      ? 'Built from Task 3 PA/NA counts; sorted by highest negative-rate pressure.'
+      : 'Chart unavailable (CDN blocked); sentiment rates remain available from API data.');
+    if (renderState.aspects) setChartNote('chart-note-aspects', 'Interactive heatmap: click any district to drill down Word Cloud, Suggestion Board, and Friction chart.');
+    if (renderState.topic || !chartReady) setChartNote('chart-note-topics', chartReady
+      ? 'Using LDA-aligned topic labels from your pipeline outputs.'
+      : 'Chart unavailable (CDN blocked); LDA topic counts are still provided by the backend.');
+    if (renderState.improvement || !chartReady) setChartNote('chart-note-improvement', chartReady
+      ? 'Bars are issue-rate by district; dashed line is Bangkok benchmark; colors show benchmark alert level (green/amber/red).'
+      : 'Chart unavailable (CDN blocked); issue-rate and volume are still reflected in KPI/board sections.');
+    setChartNote('chart-note-issue-board', 'Each category includes frequency tags and potential impact estimates for targeted host actions.');
+    setChartNote('chart-note-wordcloud', 'Word size represents frequency of issue-oriented terms in district improvement comments.');
+    if (renderState.friction || !chartReady) setChartNote('chart-note-friction', 'Negative bars reveal complaint drivers; positive bars show strengths to preserve in messaging and operations.');
+
+    if (Array.isArray(data.notes) && data.notes.length) {
+      const merged = data.notes.join(' ');
+      setChartNote('chart-note-topics', `${document.getElementById('chart-note-topics').textContent} ${merged}`);
+    }
+
+    applyDashboardFilters();
+
+    dashboardLoaded = true;
+  } catch (err) {
+    const msg = `Unable to load charts: ${err.message}`;
+    setChartNote('chart-note-opportunity', msg);
+    setChartNote('chart-note-sentiment', msg);
+    setChartNote('chart-note-aspects', msg);
+    setChartNote('chart-note-topics', msg);
+    setChartNote('chart-note-improvement', msg);
+    setChartNote('chart-note-issue-board', msg);
+    setChartNote('chart-note-wordcloud', msg);
+    setChartNote('chart-note-friction', msg);
+  }
 }
 
 /* ── Sentence-level polarity scorer
@@ -684,10 +3302,137 @@ function nssLabel(v) {
   return 'Critical';
 }
 
+function normalizeAspects(rawAspects) {
+  const normalized = {};
+  ASPECT_ORDER.forEach(aspect => {
+    if (rawAspects && rawAspects[aspect] && typeof rawAspects[aspect].nss === 'number') {
+      const nss = Math.max(-1, Math.min(1, rawAspects[aspect].nss));
+      normalized[aspect] = {
+        ...rawAspects[aspect],
+        nss,
+        label: rawAspects[aspect].label || nssLabel(nss),
+        source: rawAspects[aspect].source || 'review'
+      };
+    } else {
+      const nss = LOCAL_BASELINE_NSS[aspect] || 0;
+      normalized[aspect] = {
+        nss,
+        label: nssLabel(nss),
+        source: 'baseline'
+      };
+    }
+  });
+  return normalized;
+}
+
+function buildRadarChart(aspects) {
+  const size = 340;
+  const center = size / 2;
+  const radius = 112;
+  const levels = 4;
+
+  const pointFor = (idx, scale) => {
+    const angle = -Math.PI / 2 + ((2 * Math.PI) / ASPECT_ORDER.length) * idx;
+    const r = radius * scale;
+    const x = center + Math.cos(angle) * r;
+    const y = center + Math.sin(angle) * r;
+    return { x, y };
+  };
+
+  let grid = '';
+  for (let level = 1; level <= levels; level++) {
+    const scale = level / levels;
+    const points = ASPECT_ORDER.map((_, idx) => {
+      const p = pointFor(idx, scale);
+      return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+    }).join(' ');
+    grid += `<polygon points="${points}" fill="none" stroke="var(--c-radar-grid)" stroke-width="0.8"></polygon>`;
+  }
+
+  const axes = ASPECT_ORDER.map((aspect, idx) => {
+    const edge = pointFor(idx, 1);
+    const label = pointFor(idx, 1.18);
+    return `
+      <line x1="${center}" y1="${center}" x2="${edge.x.toFixed(1)}" y2="${edge.y.toFixed(1)}" stroke="var(--c-radar-axis)" stroke-width="0.8"></line>
+      <text x="${label.x.toFixed(1)}" y="${label.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="var(--c-radar-label)">${ASPECT_LABELS[aspect]}</text>
+    `;
+  }).join('');
+
+  const dataPoints = ASPECT_ORDER.map((aspect, idx) => {
+    const norm = (aspects[aspect].nss + 1) / 2;
+    const p = pointFor(idx, Math.max(0, Math.min(1, norm)));
+    return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+  }).join(' ');
+
+  return `
+    <div class="radar-wrap">
+      <svg class="radar-svg" viewBox="0 0 ${size} ${size}" role="img" aria-label="Radar chart for six Airbnb review aspects">
+        ${grid}
+        ${axes}
+        <polygon points="${dataPoints}" fill="var(--c-radar-fill)" stroke="var(--c-radar-stroke)" stroke-width="2"></polygon>
+        ${ASPECT_ORDER.map((aspect, idx) => {
+          const norm = (aspects[aspect].nss + 1) / 2;
+          const p = pointFor(idx, Math.max(0, Math.min(1, norm)));
+          return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.2" fill="var(--c-radar-node)"></circle>`;
+        }).join('')}
+      </svg>
+      <p class="radar-caption">Radar chart uses the 6 required aspects: Cleanliness, Location, Communication, Check-in, Value, and Amenities.</p>
+    </div>
+  `;
+}
+
+function buildRoadmapRows(aspects, roadmap, suggestions) {
+  const rows = [];
+  const fallbackSuggestions = Array.isArray(suggestions) ? suggestions : [];
+
+  ASPECT_ORDER.forEach(aspect => {
+    const data = aspects[aspect];
+    if (!data || data.nss >= LOW_NSS_THRESHOLD) return;
+
+    let items = (roadmap && Array.isArray(roadmap[aspect])) ? roadmap[aspect].slice(0, 3) : [];
+
+    if (!items.length) {
+      items = fallbackSuggestions.filter(s => {
+        const low = String(s).toLowerCase();
+        return ASPECT_KEYWORDS[aspect].some(k => low.includes(k));
+      }).slice(0, 3);
+    }
+
+    if (!items.length) {
+      items = [`Prioritize quick operational fixes for ${ASPECT_LABELS[aspect].toLowerCase()} and monitor next reviews for improvement.`];
+    }
+
+    rows.push({
+      aspect,
+      nss: data.nss,
+      suggestions: items
+    });
+  });
+
+  return rows;
+}
+
+function renderRoadmap(rows) {
+  if (!rows.length) {
+    return '<p class="no-suggestions">All six aspects are currently above the low-risk threshold (NSS >= 0.20).</p>';
+  }
+
+  return '<div class="roadmap-list">' + rows.map(row => {
+    return `<div class="roadmap-item">
+      <div class="roadmap-head">
+        <span class="roadmap-aspect">${ASPECT_LABELS[row.aspect]}</span>
+        <span class="roadmap-nss">NSS ${row.nss >= 0 ? '+' : ''}${row.nss.toFixed(2)}</span>
+      </div>
+      <ul class="roadmap-bullets">${row.suggestions.map(s => `<li>${s}</li>`).join('')}</ul>
+    </div>`;
+  }).join('') + '</div>';
+}
+
 /* ── Render results ── */
-function renderResults(sentiment, topic, aspects, suggestions) {
+function renderResults(sentiment, topic, rawAspects, suggestions, roadmap = null) {
   const sentClass = 'sent-' + sentiment.label;
   const label     = sentiment.label.charAt(0).toUpperCase() + sentiment.label.slice(1);
+  const aspects   = normalizeAspects(rawAspects);
 
   const aspectEntries = Object.entries(aspects);
   const aspectsHTML = aspectEntries.length > 0
@@ -702,9 +3447,14 @@ function renderResults(sentiment, topic, aspects, suggestions) {
             <span class="aspect-score" style="color:${nssColor(d.nss)}">${nssLabel(d.nss)}</span>
             <span class="aspect-polarity">NSS ${d.nss >= 0 ? '+' : ''}${d.nss.toFixed(2)}</span>
           </div>
+          <div class="aspect-source">${d.source === 'baseline' ? 'Source: City baseline fallback' : 'Source: Current review signal'}</div>
         </div>`;
       }).join('') + '</div>'
     : '<p class="no-suggestions">No specific aspects detected in this review.</p>';
+
+  const radarHTML = buildRadarChart(aspects);
+  const roadmapRows = buildRoadmapRows(aspects, roadmap, suggestions);
+  const roadmapHTML = renderRoadmap(roadmapRows);
 
   const sugHTML = suggestions.length > 0
     ? '<ul class="suggestions-list">' + suggestions.map(s => `<li class="suggestion-item">${s}</li>`).join('') + '</ul>'
@@ -730,6 +3480,16 @@ function renderResults(sentiment, topic, aspects, suggestions) {
       <div class="card">
         <div class="card-label">Task 3 — Aspect sentiment scores (NSS)</div>
         ${aspectsHTML}
+      </div>
+
+      <div class="card">
+        <div class="card-label">Task 3 — 6-aspect radar view</div>
+        ${radarHTML}
+      </div>
+
+      <div class="card">
+        <div class="card-label">Strategic roadmap — low NSS actions (&lt; 0.20)</div>
+        ${roadmapHTML}
       </div>
 
       <div class="card">
@@ -762,15 +3522,17 @@ async function analyse() {
       });
       if (!response.ok) throw new Error('API returned ' + response.status);
       const data = await response.json();
-      renderResults(data.sentiment, data.topic, data.aspects, data.suggestions);
+      renderResults(data.sentiment, data.topic, data.aspects, data.suggestions || [], data.roadmap || null);
     } else {
       /* Local mode: run in-browser logic */
       await new Promise(r => setTimeout(r, 500));
+      const localSuggestions = extractSuggestionsLocal(text);
       renderResults(
         detectSentimentLocal(text),
         detectTopicLocal(text),
         detectAspectsLocal(text),
-        extractSuggestionsLocal(text)
+        localSuggestions,
+        null
       );
     }
   } catch (err) {
@@ -793,6 +3555,10 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
+  if (name === 'dashboards') {
+    loadDashboardCharts();
+    setDashboardPanel(activeDashboardPanel || 'all');
+  }
 }
 </script>
 </body>
