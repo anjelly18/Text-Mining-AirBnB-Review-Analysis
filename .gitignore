@@ -3,16 +3,6 @@
 # See README.md for the Drive link
 # =============================================================
 
-# Large model files — download from Google Drive, place in Actual Work/models/
-# Small model files (tfidf_vectorizer, bow_vectorizer, word2vec.model) ARE committed
-Actual Work/models/lr_sentiment_task1.pkl
-Actual Work/models/lr_aspect.pkl
-Actual Work/models/lr_sentiment_task3.pkl
-Actual Work/models/tfidf_vectorizer_task1.pkl
-Actual Work/models/tfidf_vectorizer_task3.pkl
-Actual Work/models/le_aspect.pkl
-Actual Work/models/le_sentiment.pkl
-
 # Large feature matrices (training artefacts — not needed for inference)
 Actual Work/features/bow_matrix.pkl
 Actual Work/features/tfidf_matrix.pkl
