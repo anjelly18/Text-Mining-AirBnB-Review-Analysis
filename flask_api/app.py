@@ -738,6 +738,14 @@ def load_dashboard_data():
                             elif score <= -0.05:
                                 negative.update(tokens)
 
+                    # Remove overlapping tokens so a term does not appear as both a top positive
+                    # and a top negative driver in the same view.
+                    for token in set(positive).intersection(negative):
+                        if positive[token] >= negative[token]:
+                            negative.pop(token, None)
+                        else:
+                            positive.pop(token, None)
+
                     return {
                         'positive_terms': [
                             {'word': word, 'count': int(count)}
@@ -765,7 +773,10 @@ def load_dashboard_data():
             try:
                 lda_df = pd.read_csv(LDA_TOPIC_ASSIGNMENTS_PATH)
                 if {'listing_id', 'lda_topic_label'}.issubset(lda_df.columns):
-                    lda_df = lda_df.merge(listing_map, on='listing_id', how='left').dropna(subset=['neighbourhood'])
+                    if 'neighbourhood' in lda_df.columns:
+                        lda_df = lda_df.dropna(subset=['neighbourhood'])
+                    else:
+                        lda_df = lda_df.merge(listing_map, on='listing_id', how='left').dropna(subset=['neighbourhood'])
                     lda_topic_overall = (
                         lda_df.groupby('lda_topic_label', as_index=False)
                         .size()
@@ -775,7 +786,8 @@ def load_dashboard_data():
                     payload['topic_distribution_lda'] = lda_topic_overall.to_dict(orient='records')
                     payload['notes'].append('LDA topic chart uses lda_topic_assignments.csv (direct model assignments).')
             except Exception as exc:
-                payload['notes'].append(f'Could not use lda_topic_assignments.csv: {exc}')
+                # Keep backend diagnostics in logs, but do not leak raw exceptions into UI notes.
+                print(f'WARNING: Could not use lda_topic_assignments.csv. Error: {exc}')
 
         # Build district opportunity matrix rows.
         sent_overview = sent[['neighbourhood', 'positive_rate', 'negative_rate', 'net_sentiment', 'total']].copy()

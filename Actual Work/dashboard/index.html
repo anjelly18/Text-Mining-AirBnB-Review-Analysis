@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Airbnb Review Analyser — Bangkok</title>
+  <title>HostLens Pro — Bangkok Hosting Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
@@ -1184,14 +1184,6 @@
       font-weight: 600;
     }
 
-    .dashboard-sidebar-note {
-      font-size: .74rem;
-      line-height: 1.55;
-      color: var(--c-muted);
-      border-top: 0.5px solid var(--c-border);
-      padding-top: .7rem;
-    }
-
     .dashboard-main {
       min-width: 0;
       display: grid;
@@ -1349,8 +1341,8 @@
 <body>
   <div id="app">
     <div class="header">
-      <h1>Review Analyser <span>/ Bangkok</span></h1>
-      <p>Text mining analysis of Bangkok Airbnb guest reviews — explore district-level insights or analyse individual
+      <h1>HostLens Pro <span>/ Bangkok Hosting Intelligence</span></h1>
+      <p>Analysis of Bangkok Airbnb guest reviews — explore district-level insights or analyse individual
         reviews.</p>
     </div>
 
@@ -1415,8 +1407,6 @@
             <button class="dashboard-nav-btn" data-panel="friction" type="button">Friction</button>
           </div>
 
-          <p class="dashboard-sidebar-note">Clean, card-based layout inspired by Airbnb host tools. Use the side menu
-            for quick jumps and keep All Charts for the full portfolio view.</p>
         </aside>
 
         <div class="dashboard-main">
@@ -1799,6 +1789,18 @@
       return AIRBNB_CHART[mode];
     }
 
+    function getCssToken(name, fallback) {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(name);
+      const value = raw ? raw.trim() : '';
+      return value || fallback;
+    }
+
+    function syncChartDefaultsFromTheme() {
+      if (typeof Chart === 'undefined') return;
+      Chart.defaults.color = getCssToken('--c-text', '#232129');
+      Chart.defaults.borderColor = getCssToken('--c-border', '#e5e3ea');
+    }
+
     function parseColorRgb(color) {
       if (!color || typeof color !== 'string') return null;
       const trimmed = color.trim();
@@ -1833,6 +1835,7 @@
     function applyDashboardTheme(mode) {
       const normalized = mode === 'dark' ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', normalized);
+      syncChartDefaultsFromTheme();
       const btn = document.getElementById('theme-toggle-btn');
       if (btn) {
         btn.textContent = normalized === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
@@ -2200,7 +2203,9 @@
 
       const topNeg = negatives[0];
       const topPos = positives[0];
-      const scopeLabel = options.scope === 'overall' ? 'Portfolio overall' : (source.neighbourhood || 'Selected district');
+      const scopeLabel = (options.scope === 'overall' || source.neighbourhood === '__overall__')
+        ? 'Portfolio overall'
+        : (source.neighbourhood || 'Selected district');
 
       panel.innerHTML = `
     <div class="insight-title">How To Read This Chart</div>
@@ -3027,9 +3032,9 @@
         margin: { l: 95, r: 18, t: 12, b: 35 },
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
-        font: { size: 11 },
-        yaxis: { automargin: true },
-        xaxis: { automargin: true },
+        font: { size: 11, color: getCssToken('--c-text', '#232129') },
+        yaxis: { automargin: true, tickfont: { color: getCssToken('--c-text', '#232129') } },
+        xaxis: { automargin: true, tickfont: { color: getCssToken('--c-text', '#232129') } },
       };
 
       // Plotly requires a measurable container. Force explicit dimensions before render.
@@ -3453,8 +3458,14 @@
         if (renderState.friction || !chartReady) setChartNote('chart-note-friction', 'Negative bars reveal complaint drivers; positive bars show strengths to preserve in messaging and operations.');
 
         if (Array.isArray(data.notes) && data.notes.length) {
-          const merged = data.notes.join(' ');
-          setChartNote('chart-note-topics', `${document.getElementById('chart-note-topics').textContent} ${merged}`);
+          const curatedNotes = data.notes.filter((n) => {
+            const txt = String(n || '').toLowerCase();
+            return !(txt.includes('could not') || txt.includes('fallback used due to error'));
+          });
+          if (curatedNotes.length) {
+            const merged = curatedNotes.join(' ');
+            setChartNote('chart-note-topics', `${document.getElementById('chart-note-topics').textContent} ${merged}`.trim());
+          }
         }
 
         applyDashboardFilters();
