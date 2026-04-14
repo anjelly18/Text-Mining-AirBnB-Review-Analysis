@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     *,
@@ -757,6 +758,14 @@
       width: 80px;
     }
 
+    .filter-limit-hint {
+      flex: 1 1 100%;
+      margin-top: .1rem;
+      font-size: .71rem;
+      color: var(--c-muted);
+      letter-spacing: .02em;
+    }
+
     .chart-loading {
       font-size: .84rem;
       color: var(--c-muted);
@@ -971,6 +980,10 @@
       color: var(--c-text);
       font-size: .82rem;
       width: 94px;
+    }
+
+    .wordcloud-controls .filter-limit-hint {
+      margin-top: 0;
     }
 
     .wordcloud-canvas {
@@ -1224,10 +1237,14 @@
       aspect-ratio: auto;
       min-height: 270px;
       border-radius: 12px;
+      overflow: auto;
+      overscroll-behavior: contain;
     }
 
     .chart-shell {
+      width: 100%;
       min-height: 280px;
+      min-width: 100%;
     }
 
     .chart-shell.tall {
@@ -1239,8 +1256,8 @@
     }
 
     .tableau-embed.chart-scroll-x {
-      overflow: hidden;
-      justify-content: center;
+      overflow: auto;
+      justify-content: flex-start;
     }
 
     #chart-opportunity-matrix {
@@ -1427,7 +1444,7 @@
               <label for="filter-opportunity-topn">Top N</label>
               <input id="filter-opportunity-topn" type="number" min="5" max="30" step="1" value="18" />
               <label for="filter-opportunity-minsug">Min suggestions</label>
-              <input id="filter-opportunity-minsug" type="number" min="0" max="5000" step="1" value="0" />
+              <input id="filter-opportunity-minsug" type="number" min="0" max="10000" step="1" value="0" />
               <label for="filter-opportunity-sort">Sort</label>
               <select id="filter-opportunity-sort">
                 <option value="risk" selected>Risk</option>
@@ -1437,6 +1454,7 @@
               <button id="opportunity-zoom-in" type="button">Zoom in</button>
               <button id="opportunity-zoom-out" type="button">Zoom out</button>
               <button id="opportunity-zoom-reset" type="button">Reset zoom</button>
+              <span class="filter-limit-hint">Limits: Top N 5-30 | Min suggestions 0-10000.</span>
             </div>
             <div class="tableau-embed chart-scroll-x">
               <div class="chart-shell chart-shell-wide"><canvas id="chart-opportunity-matrix"></canvas></div>
@@ -1455,7 +1473,7 @@
               <label for="filter-sentiment-topn">Top N</label>
               <input id="filter-sentiment-topn" type="number" min="5" max="30" step="1" value="14" />
               <label for="filter-sentiment-minvolume">Min volume</label>
-              <input id="filter-sentiment-minvolume" type="number" min="0" max="50000" step="1" value="0" />
+              <input id="filter-sentiment-minvolume" type="number" min="0" max="100000" step="1" value="0" />
               <label for="filter-sentiment-view">View</label>
               <select id="filter-sentiment-view">
                 <option value="stacked" selected>Stacked share</option>
@@ -1468,6 +1486,7 @@
                 <option value="net">Net sentiment</option>
                 <option value="volume">Volume</option>
               </select>
+              <span class="filter-limit-hint">Limits: Top N 5-30 | Min volume 0-100000.</span>
             </div>
             <div class="tableau-embed">
               <div class="chart-shell"><canvas id="chart-sentiment-district"></canvas></div>
@@ -1496,6 +1515,7 @@
                 <option value="value">Value</option>
                 <option value="amenities">Amenities</option>
               </select>
+              <span class="filter-limit-hint">Limits: Top N 8-30.</span>
             </div>
             <div class="tableau-embed">
               <div class="chart-shell tall">
@@ -1517,7 +1537,8 @@
               <label for="filter-topics-topn">Top N topics</label>
               <input id="filter-topics-topn" type="number" min="4" max="20" step="1" value="12" />
               <label for="filter-topics-mincount">Min count</label>
-              <input id="filter-topics-mincount" type="number" min="0" max="5000" step="1" value="0" />
+              <input id="filter-topics-mincount" type="number" min="0" max="10000" step="1" value="0" />
+              <span class="filter-limit-hint">Limits: Top N topics 4-20 | Min count 0-10000.</span>
             </div>
             <div class="tableau-embed">
               <div class="chart-shell"><canvas id="chart-topic-bangkok"></canvas></div>
@@ -1549,6 +1570,7 @@
                 <option value="amber">Amber only</option>
                 <option value="green">Green only</option>
               </select>
+              <span class="filter-limit-hint">Limits: Top N 5-30.</span>
             </div>
             <div class="tableau-embed">
               <div class="chart-shell"><canvas id="chart-improvement-area"></canvas></div>
@@ -1573,6 +1595,7 @@
               <input id="filter-action-topn" type="number" min="1" max="20" step="1" value="10" />
               <label for="filter-action-cats">Categories/district</label>
               <input id="filter-action-cats" type="number" min="1" max="8" step="1" value="4" />
+              <span class="filter-limit-hint">Limits: Districts 1-20 | Categories/district 1-8.</span>
             </div>
             <div id="issue-suggestion-board" class="issue-board"></div>
             <div class="chart-note" id="chart-note-issue-board"></div>
@@ -1590,6 +1613,7 @@
               <select id="wordcloud-district-select"></select>
               <label for="filter-wordcloud-topn">Top words</label>
               <input id="filter-wordcloud-topn" type="number" min="10" max="80" step="1" value="45" />
+              <span class="filter-limit-hint">Limits: Top words 10-80.</span>
             </div>
             <div id="wordcloud-canvas" class="wordcloud-canvas"></div>
             <div class="chart-note" id="chart-note-wordcloud"></div>
@@ -1608,8 +1632,9 @@
                 <option value="selected" selected>Selected district</option>
                 <option value="overall">Portfolio overall</option>
               </select>
-              <label for="filter-friction-terms">Top terms each side</label>
-              <input id="filter-friction-terms" type="number" min="3" max="10" step="1" value="5" />
+              <label for="filter-friction-terms">Top terms (total)</label>
+              <input id="filter-friction-terms" type="number" min="6" max="40" step="1" value="20" />
+              <span class="filter-limit-hint">Limits: Top terms (total) 6-40.</span>
             </div>
             <div class="tableau-embed">
               <div class="chart-shell"><canvas id="chart-friction-points"></canvas></div>
@@ -1960,6 +1985,43 @@
       return el.value || fallback;
     }
 
+    function getZoomPluginOptions(mode = 'x') {
+      return {
+        pan: {
+          enabled: true,
+          mode,
+          threshold: 6,
+        },
+        zoom: {
+          wheel: {
+            enabled: true,
+            speed: 0.08,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode,
+        },
+        limits: {
+          x: { min: 'original', max: 'original' },
+          y: { min: 'original', max: 'original' },
+        },
+      };
+    }
+
+    function setScrollableShellWidth(canvasId, pointCount, options = {}) {
+      const canvas = document.getElementById(canvasId);
+      const shell = canvas ? canvas.closest('.chart-shell') : null;
+      if (!shell) return;
+
+      const baseWidth = Number(options.baseWidth || 620);
+      const perPoint = Number(options.perPoint || 34);
+      const maxWidth = Number(options.maxWidth || 2200);
+      const points = Math.max(0, Number(pointCount || 0));
+      const target = Math.min(maxWidth, Math.max(baseWidth, points * perPoint));
+      shell.style.minWidth = `${target}px`;
+    }
+
     function getDashboardFilters() {
       return {
         opportunity: {
@@ -1995,7 +2057,7 @@
         },
         friction: {
           scope: getSelectControl('filter-friction-scope', 'selected'),
-          topTerms: getNumberControl('filter-friction-terms', 5, 3, 10),
+          topTerms: getNumberControl('filter-friction-terms', 20, 6, 40),
         },
       };
     }
@@ -2057,12 +2119,14 @@
           count: Number(r.count || 0),
         }))
         .filter(r => r.count > 0 && r.count >= minCount)
+        .sort((a, b) => b.count - a.count)
         .slice(0, topN);
     }
 
     function getFrictionSource(rows, options = {}) {
       const scope = options.scope || 'selected';
-      const topTerms = Number(options.topTerms || 5);
+      const topTerms = Number(options.topTerms || 20);
+      const termsPerSide = Math.max(1, Math.ceil(topTerms / 2));
 
       const source = scope === 'overall'
         ? (rows.find(r => r.neighbourhood === '__overall__') || rows[0])
@@ -2072,8 +2136,8 @@
 
       if (!source) return { source: null, negatives: [], positives: [], points: [] };
 
-      const negatives = (source.negative_terms || []).slice(0, topTerms).map(t => ({ word: t.word, value: -Number(t.count || 0), count: Number(t.count || 0) }));
-      const positives = (source.positive_terms || []).slice(0, topTerms).map(t => ({ word: t.word, value: Number(t.count || 0), count: Number(t.count || 0) }));
+      const negatives = (source.negative_terms || []).slice(0, termsPerSide).map(t => ({ word: t.word, value: -Number(t.count || 0), count: Number(t.count || 0) }));
+      const positives = (source.positive_terms || []).slice(0, termsPerSide).map(t => ({ word: t.word, value: Number(t.count || 0), count: Number(t.count || 0) }));
       return { source, negatives, positives, points: [...negatives, ...positives] };
     }
 
@@ -2211,7 +2275,7 @@
     <div class="insight-title">How To Read This Chart</div>
     <p class="insight-text">Left-side bars are top complaint drivers; right-side bars are strongest positive drivers.</p>
     <ul class="insight-list">
-      <li>Scope: ${scopeLabel}; terms shown per side: ${Number(options.topTerms || 5)}.</li>
+      <li>Scope: ${scopeLabel}; terms shown total: ${negatives.length + positives.length}.</li>
       <li>Top complaint driver: ${topNeg ? `${topNeg.word} (${topNeg.count} mentions)` : 'n/a'}.</li>
       <li>Top positive driver: ${topPos ? `${topPos.word} (${topPos.count} mentions)` : 'n/a'}.</li>
       <li>Action rule: fix the leading negative driver while preserving the strongest positive differentiator.</li>
@@ -2763,6 +2827,7 @@
       const theme = getChartTheme();
 
       const ordered = getFilteredOpportunityRows(rows, options);
+      setScrollableShellWidth('chart-opportunity-matrix', ordered.length, { baseWidth: 760, perPoint: 30, maxWidth: 1800 });
       const data = ordered.map(r => ({
         x: Number(r.avg_nss || 0),
         y: Number(r.issue_rate || 0) * 100,
@@ -2819,6 +2884,7 @@
       const theme = getChartTheme();
 
       const ordered = getFilteredSentimentRows(rows, options);
+      setScrollableShellWidth('chart-sentiment-district', ordered.length, { baseWidth: 720, perPoint: 52, maxWidth: 2200 });
       const viewMode = options.view || 'stacked';
 
       if (!ordered.length) {
@@ -2874,6 +2940,7 @@
             },
             plugins: {
               legend: { position: 'bottom' },
+              zoom: getZoomPluginOptions('xy'),
               tooltip: {
                 mode: 'index',
                 intersect: false,
@@ -2923,6 +2990,7 @@
           },
           plugins: {
             legend: { position: 'bottom' },
+            zoom: getZoomPluginOptions('xy'),
             tooltip: {
               mode: 'index',
               intersect: false,
@@ -3042,7 +3110,11 @@
       node.style.height = '360px';
 
       try {
-        Plotly.react(node, [trace], layout, { displayModeBar: false, responsive: true });
+        Plotly.react(node, [trace], layout, {
+          displayModeBar: true,
+          scrollZoom: true,
+          responsive: true,
+        });
         node.removeAllListeners?.('plotly_click');
         node.on('plotly_click', (evt) => {
           const district = evt?.points?.[0]?.y;
@@ -3060,6 +3132,7 @@
       const theme = getChartTheme();
 
       const normalized = getFilteredTopicRows(rows, options);
+      setScrollableShellWidth('chart-topic-bangkok', normalized.length, { baseWidth: 680, perPoint: 70, maxWidth: 2200 });
 
       destroyChart(charts.topics);
       charts.topics = new Chart(ctx, {
@@ -3077,7 +3150,8 @@
           maintainAspectRatio: false,
           indexAxis: 'y',
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            zoom: getZoomPluginOptions('xy'),
           },
           scales: {
             x: { beginAtZero: true }
@@ -3158,6 +3232,7 @@
       const theme = getChartTheme();
 
       const ordered = getFilteredImprovementRows(rows, options);
+      setScrollableShellWidth('chart-improvement-area', ordered.length, { baseWidth: 740, perPoint: 54, maxWidth: 2400 });
       if (!ordered.length) {
         destroyChart(charts.improvement);
         const context = ctx.getContext('2d');
@@ -3225,6 +3300,7 @@
           },
           plugins: {
             legend: { position: 'bottom' },
+            zoom: getZoomPluginOptions('xy'),
           }
         }
       });
@@ -3324,6 +3400,7 @@
       const theme = getChartTheme();
 
       const { source, negatives, positives, points } = getFrictionSource(rows, options);
+      setScrollableShellWidth('chart-friction-points', points.length, { baseWidth: 680, perPoint: 84, maxWidth: 2600 });
 
       if (!source) return;
 
@@ -3349,7 +3426,8 @@
             }
           },
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            zoom: getZoomPluginOptions('xy'),
           }
         }
       });

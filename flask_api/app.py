@@ -205,6 +205,12 @@ WORD_CLOUD_STOPWORDS = STOPWORDS.union(WORD_CLOUD_NOISE_TERMS).union({
     'time', 'day', 'night', 'next', 'back', 'again', 'staycation', 'nice', 'good',
 })
 
+# Send enough terms so the frontend top-words control (up to 80) can be honored.
+WORD_CLOUD_MAX_TERMS = 120
+
+# Keep enough polarity tokens per side so the friction filter can show up to 40 total terms.
+FRICTION_MAX_TERMS_PER_SIDE = 30
+
 ASPECT_DISPLAY = {
     'cleanliness': 'Cleanliness',
     'location': 'Location',
@@ -679,7 +685,7 @@ def load_dashboard_data():
 
                 words = [
                     {'word': word, 'weight': int(weight)}
-                    for word, weight in counter.most_common(45)
+                    for word, weight in counter.most_common(WORD_CLOUD_MAX_TERMS)
                 ]
                 wordcloud_rows.append({
                     'neighbourhood': nbh,
@@ -749,11 +755,11 @@ def load_dashboard_data():
                     return {
                         'positive_terms': [
                             {'word': word, 'count': int(count)}
-                            for word, count in positive.most_common(5)
+                            for word, count in positive.most_common(FRICTION_MAX_TERMS_PER_SIDE)
                         ],
                         'negative_terms': [
                             {'word': word, 'count': int(count)}
-                            for word, count in negative.most_common(5)
+                            for word, count in negative.most_common(FRICTION_MAX_TERMS_PER_SIDE)
                         ],
                     }
 
