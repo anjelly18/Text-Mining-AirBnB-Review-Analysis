@@ -665,6 +665,15 @@
       min-height: 56vh;
     }
 
+    #tab-dashboards.dashboard-focus .panel-friction.dashboard-panel-active .chart-shell,
+    #tab-dashboards.dashboard-focus .panel-sentiment.dashboard-panel-active .chart-shell,
+    #tab-dashboards.dashboard-focus .panel-topics.dashboard-panel-active .chart-shell,
+    #tab-dashboards.dashboard-focus .panel-improvement.dashboard-panel-active .chart-shell {
+      min-height: 420px !important;
+      height: 420px !important;
+      max-height: 420px !important;
+    }
+
     #tab-dashboards.dashboard-focus .dashboard-panel-active .chart-shell.tall {
       min-height: 60vh;
     }
@@ -1241,6 +1250,42 @@
       overscroll-behavior: contain;
     }
 
+    .dashboard-main .panel-friction .tableau-embed,
+    .dashboard-main .panel-sentiment .tableau-embed,
+    .dashboard-main .panel-topics .tableau-embed,
+    .dashboard-main .panel-improvement .tableau-embed {
+      min-height: 280px;
+      max-height: 280px;
+      overflow: hidden;
+    }
+
+    .dashboard-main .panel-friction .chart-shell,
+    .dashboard-main .panel-sentiment .chart-shell,
+    .dashboard-main .panel-topics .chart-shell,
+    .dashboard-main .panel-improvement .chart-shell {
+      min-height: 260px !important;
+      height: 260px !important;
+      max-height: 260px !important;
+    }
+
+    #tab-dashboards.dashboard-focus .panel-friction.dashboard-panel-active .chart-shell,
+    #tab-dashboards.dashboard-focus .panel-sentiment.dashboard-panel-active .chart-shell,
+    #tab-dashboards.dashboard-focus .panel-topics.dashboard-panel-active .chart-shell,
+    #tab-dashboards.dashboard-focus .panel-improvement.dashboard-panel-active .chart-shell {
+      min-height: 480px !important;
+      height: 480px !important;
+      max-height: 480px !important;
+    }
+
+    #tab-dashboards.dashboard-focus .panel-friction.dashboard-panel-active .tableau-embed,
+    #tab-dashboards.dashboard-focus .panel-sentiment.dashboard-panel-active .tableau-embed,
+    #tab-dashboards.dashboard-focus .panel-topics.dashboard-panel-active .tableau-embed,
+    #tab-dashboards.dashboard-focus .panel-improvement.dashboard-panel-active .tableau-embed {
+      min-height: 500px;
+      max-height: 500px;
+      overflow: auto;
+    }
+
     .chart-shell {
       width: 100%;
       min-height: 280px;
@@ -1465,7 +1510,7 @@
 
           <div class="tableau-divider"></div>
 
-          <div class="tableau-section dashboard-panel" data-panel="sentiment">
+          <div class="tableau-section dashboard-panel panel-sentiment" data-panel="sentiment">
             <div class="tableau-section-title">Sentiment by district</div>
             <div class="tableau-section-desc">100% stacked sentiment rates by district, sorted by negative-rate pressure
               so riskier areas are immediately visible.</div>
@@ -1529,7 +1574,7 @@
           <div class="tableau-divider"></div>
 
           <!-- Dashboard 3 -->
-          <div class="tableau-section dashboard-panel" data-panel="topics">
+          <div class="tableau-section dashboard-panel panel-topics" data-panel="topics">
             <div class="tableau-section-title">Topic distribution (LDA)</div>
             <div class="tableau-section-desc">Distribution of LDA-aligned topic labels from your pipeline (e.g.,
               Complaints & Issues, Check-in & Arrival, Facilities & Amenities).</div>
@@ -1550,7 +1595,7 @@
           <div class="tableau-divider"></div>
 
           <!-- Dashboard 4 -->
-          <div class="tableau-section dashboard-panel" data-panel="improvement">
+          <div class="tableau-section dashboard-panel panel-improvement" data-panel="improvement">
             <div class="tableau-section-title">Host improvement signals by area
               <span class="section-inline-meta">
                 <span id="benchmark-status-pill" class="status-pill status-amber">Benchmark loading</span>
@@ -1622,7 +1667,7 @@
 
           <div class="tableau-divider"></div>
 
-          <div class="tableau-section dashboard-panel" data-panel="friction">
+          <div class="tableau-section dashboard-panel panel-friction" data-panel="friction">
             <div class="tableau-section-title">Sentiment friction points</div>
             <div class="tableau-section-desc">Diverging bar chart of top positive vs negative term drivers. Quickly
               shows what guests love versus what causes friction.</div>
@@ -1633,7 +1678,7 @@
                 <option value="overall">Portfolio overall</option>
               </select>
               <label for="filter-friction-terms">Top terms (total)</label>
-              <input id="filter-friction-terms" type="number" min="6" max="40" step="1" value="20" />
+              <input id="filter-friction-terms" type="number" min="6" max="40" step="1" value="10" />
               <span class="filter-limit-hint">Limits: Top terms (total) 6-40.</span>
             </div>
             <div class="tableau-embed">
@@ -1951,6 +1996,15 @@
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
+      // When switching back to overview, clear any inline minWidth set by setScrollableShellWidth
+      if (!focusMode) {
+        ['chart-sentiment-district', 'chart-topic-bangkok', 'chart-improvement-area', 'chart-friction-points'].forEach(id => {
+          const canvas = document.getElementById(id);
+          const shell = canvas ? canvas.closest('.chart-shell') : null;
+          if (shell) shell.style.minWidth = '';
+        });
+      }
+
       setTimeout(resizeDashboardVisuals, 80);
     }
 
@@ -2057,7 +2111,7 @@
         },
         friction: {
           scope: getSelectControl('filter-friction-scope', 'selected'),
-          topTerms: getNumberControl('filter-friction-terms', 20, 6, 40),
+          topTerms: getNumberControl('filter-friction-terms', 10, 6, 40),
         },
       };
     }
@@ -2884,7 +2938,8 @@
       const theme = getChartTheme();
 
       const ordered = getFilteredSentimentRows(rows, options);
-      setScrollableShellWidth('chart-sentiment-district', ordered.length, { baseWidth: 720, perPoint: 52, maxWidth: 2200 });
+      const isOverview = activeDashboardPanel === 'all';
+      if (!isOverview) setScrollableShellWidth('chart-sentiment-district', ordered.length, { baseWidth: 720, perPoint: 52, maxWidth: 2200 });
       const viewMode = options.view || 'stacked';
 
       if (!ordered.length) {
@@ -2968,11 +3023,13 @@
               label: 'Positive rate',
               data: ordered.map(r => Number(r.positive_rate || 0) * 100),
               backgroundColor: theme.positive,
+              maxBarThickness: 14,
             },
             {
               label: 'Negative rate',
               data: ordered.map(r => Number(r.negative_rate || 0) * 100),
               backgroundColor: theme.negative,
+              maxBarThickness: 14,
             }
           ]
         },
@@ -3132,7 +3189,8 @@
       const theme = getChartTheme();
 
       const normalized = getFilteredTopicRows(rows, options);
-      setScrollableShellWidth('chart-topic-bangkok', normalized.length, { baseWidth: 680, perPoint: 70, maxWidth: 2200 });
+      const isOverview = activeDashboardPanel === 'all';
+      if (!isOverview) setScrollableShellWidth('chart-topic-bangkok', normalized.length, { baseWidth: 680, perPoint: 70, maxWidth: 2200 });
 
       destroyChart(charts.topics);
       charts.topics = new Chart(ctx, {
@@ -3142,7 +3200,8 @@
           datasets: [{
             label: 'Topic count',
             data: normalized.map(r => r.count),
-            backgroundColor: normalized.map((_, idx) => theme.topic[idx % theme.topic.length])
+            backgroundColor: normalized.map((_, idx) => theme.topic[idx % theme.topic.length]),
+            maxBarThickness: 20,
           }]
         },
         options: {
@@ -3232,7 +3291,8 @@
       const theme = getChartTheme();
 
       const ordered = getFilteredImprovementRows(rows, options);
-      setScrollableShellWidth('chart-improvement-area', ordered.length, { baseWidth: 740, perPoint: 54, maxWidth: 2400 });
+      const isOverview = activeDashboardPanel === 'all';
+      if (!isOverview) setScrollableShellWidth('chart-improvement-area', ordered.length, { baseWidth: 740, perPoint: 54, maxWidth: 2400 });
       if (!ordered.length) {
         destroyChart(charts.improvement);
         const context = ctx.getContext('2d');
@@ -3258,6 +3318,7 @@
               data: ordered.map(r => Number(r.issue_rate || 0) * 100),
               backgroundColor: barColors,
               yAxisID: 'y',
+              maxBarThickness: 20,
             },
             {
               type: 'line',
@@ -3319,12 +3380,14 @@
       const maxCategories = Number(options.maxCategories || 4);
 
       let filtered = [];
-      if (mode === 'selected' && selectedDistrict) {
-        filtered = rows.filter(r => r.neighbourhood === selectedDistrict);
+      if (mode === 'selected') {
+        if (selectedDistrict) {
+          filtered = rows.filter(r => r.neighbourhood === selectedDistrict);
+        }
+        if (!filtered.length) filtered = rows.slice(0, 1);
       } else {
         filtered = rows.slice(0, topN);
       }
-      if (!filtered.length) filtered = rows.slice(0, topN);
 
       node.innerHTML = filtered.map(r => `
     <div class="issue-card">
@@ -3400,7 +3463,8 @@
       const theme = getChartTheme();
 
       const { source, negatives, positives, points } = getFrictionSource(rows, options);
-      setScrollableShellWidth('chart-friction-points', points.length, { baseWidth: 680, perPoint: 84, maxWidth: 2600 });
+      const isOverview = activeDashboardPanel === 'all';
+      if (!isOverview) setScrollableShellWidth('chart-friction-points', points.length, { baseWidth: 680, perPoint: 84, maxWidth: 2600 });
 
       if (!source) return;
 
@@ -3413,6 +3477,7 @@
             label: 'Term influence',
             data: points.map(p => p.value),
             backgroundColor: points.map(p => p.value < 0 ? theme.frictionNeg : theme.frictionPos),
+            maxBarThickness: 18,
           }]
         },
         options: {
