@@ -1,4 +1,4 @@
-# IS450 Text Mining — Bangkok Airbnb Review Analysis
+# HostLensPro - [IS450 Text Mining] Bangkok Airbnb Review Analysis
 
 Analysis of **380,000+ Bangkok Airbnb guest reviews** to extract sentiment, topics and aspect-level insights for hosts.
 
@@ -11,7 +11,7 @@ All analysis notebooks are in this repository under `Actual Work/`. They are org
 | Folder               | Contents                                                                |
 | -------------------- | ----------------------------------------------------------------------- |
 | `pre-processing/`    | Cleaning, language detection, NLP pipeline                              |
-| `features/`          | TF-IDF, Word2Vec, TextCNN feature engineering                           |
+| `features/`          | TF-IDF, BoW, Word2Vec, TextCNN feature engineering                      |
 | `task1-sentiments/`  | VADER labelling, Logistic Regression vs RoBERTa                         |
 | `task2-topics/`      | LDA topic modelling, BERTopic with Gemini labels                        |
 | `task3-combination/` | Rule-based ABSA (NSS), supervised classification, suggestion extraction |
@@ -26,7 +26,7 @@ Notebooks were developed and run in **Google Colab** with Google Drive mounted.
 
 The raw data and intermediate matrices are too large for GitHub and are stored on Google Drive:
 
-📁 **Google Drive:** `[https://drive.google.com/drive/folders/1sgpAYAjGLfWeoYnOZ_5XqWWhT5ynoLwH?usp=drive_link]`
+📁 **[Google Drive Folder](https://drive.google.com/drive/folders/1LpGq8HX-C24Ngx1ahnto1eN70r5ieNf5?usp=drive_link)**
 
 Files on Drive: `raw_reviews.csv`, `MergedCleaned.csv`, `labelled_reviews.csv`, `tfidf_matrix.pkl`, `bow_matrix.pkl`, `w2v_embeddings.pkl`, `lda_topic_assignments.csv`, `task3_supervised_output.csv`, `sentence_aspect_polarity.csv`, `suggestions_by_aspect.csv`
 
